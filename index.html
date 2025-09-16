@@ -1,0 +1,2215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Test de Repaso ✨</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --ink: #0f172a;
+      --muted: #475569;
+      --brand: #6d28d9;      /* violeta suave */
+      --brand-2: #22c55e;    /* verde éxito */
+      --brand-3: #ef4444;    /* rojo error  */
+      --ring: rgba(109, 40, 217, .15);
+      --ok-bg: #ecfdf5;
+      --ok-ink: #065f46;
+      --bad-bg:#fef2f2;
+      --bad-ink:#7f1d1d;
+      --chip:#e2e8f0;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%}
+    body{
+      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 20% 0%, #eef2ff 0%, transparent 60%) , var(--bg);
+      color: var(--ink);
+      line-height: 1.5;
+    }
+    .container{
+      max-width: 980px;
+      margin: clamp(16px, 4vh, 36px) auto;
+      padding: 0 16px 80px;
+    }
+    header{
+      display:flex; align-items: center; justify-content: space-between; gap:12px;
+      margin-bottom: 18px;
+    }
+    .title{
+      font-weight: 800;
+      letter-spacing:.2px;
+      font-size: clamp(20px, 3.2vw, 34px);
+    }
+    .subtitle{
+      color: var(--muted);
+      font-size: .98rem;
+      margin-top: 2px;
+    }
+    .badge{
+      background: var(--chip);
+      color: var(--muted);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: .85rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .controls{
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    }
+    .pill{
+      appearance:none;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform .04s ease, box-shadow .2s ease, border-color .2s ease;
+      box-shadow: 0 1px 0 rgba(2,6,23,.04), 0 6px 14px rgba(2,6,23,.06);
+    }
+    .pill:hover{ transform: translateY(-1px); border-color:#94a3b8 }
+    .pill:active{ transform: translateY(0) scale(.99) }
+    .primary{
+      background: linear-gradient(180deg, var(--brand), #5b21b6);
+      color:#fff; border: none;
+      box-shadow: 0 8px 18px var(--ring);
+    }
+    .primary[disabled]{ opacity:.55; cursor:not-allowed }
+    .nav{ position: sticky; bottom: 0; inset-inline: 0; background: linear-gradient(180deg, transparent, rgba(248,250,252,.85) 24%, rgba(248,250,252,.95)); backdrop-filter: blur(6px); padding: 16px 0; }
+    .nav .controls{ justify-content: center; }
+
+    /* tarjetas de pregunta */
+    .question-card{
+      background: var(--card);
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 18px;
+      margin: 14px 0;
+      box-shadow: 0 4px 20px rgba(2,6,23,.04);
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+    .question-card:hover{ border-color:#cbd5e1; box-shadow: 0 6px 26px rgba(2,6,23,.06); }
+    .q-head{
+      display:flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+    }
+    .q-title{
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+    .q-index{
+      font-weight: 700; color: var(--brand);
+      background: #ede9fe; padding: 6px 10px; border-radius: 10px; white-space: nowrap;
+    }
+    .options{ margin-top: 10px; display: grid; gap: 8px; }
+    .opt{
+      display:flex; gap:10px; align-items:flex-start;
+      padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 10px; background:#fff;
+      cursor: pointer; user-select: none;
+    }
+    .opt input{ transform: translateY(2px); }
+    .opt.correct{ border-color: #86efac; background: #f0fdf4; }
+    .opt.incorrect{ border-color: #fecaca; background: #fff1f2; }
+    .q-actions{ margin-top: 10px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .hint{
+      font-size: .92rem; padding: 8px 12px; border-radius: 10px; border:1px dashed #cbd5e1; background: #f8fafc; color: var(--muted);
+    }
+    .hint.ok{ background: var(--ok-bg); color: var(--ok-ink); border-color:#a7f3d0 }
+    .hint.bad{ background: var(--bad-bg); color: var(--bad-ink); border-color:#fecaca }
+    .hidden{ display:none !important; }
+
+    /* resultados */
+    .results{
+      background: var(--card);
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 22px;
+      margin-top: 16px;
+      box-shadow: 0 4px 20px rgba(2,6,23,.04);
+      text-align: center;
+    }
+    .results h2{ margin: 0 0 8px 0; font-size: 1.4rem }
+    .kpi{
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px;
+    }
+    .kpi .card{
+      border:1px solid #e2e8f0; border-radius: 12px; padding: 12px; background: #fff;
+      font-weight: 700; font-size: 1rem;
+    }
+    .fade-in{ animation: fade .35s ease }
+    @keyframes fade{ from{opacity:0; transform: translateY(4px)} to{opacity:1; transform: translateY(0)} }
+
+    /* paginación */
+    .page-indicator{
+      text-align:center; color: var(--muted); margin: 8px 0 0;
+      font-weight: 600;
+    }
+
+    /* helpers */
+    .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0; }
+    @media (max-width: 640px){
+      .kpi{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <div class="title">Test de Repaso ✍️</div>
+        <div class="subtitle">Selecciona la opción correcta, pulsa <strong>“Comprobar”</strong> en cada pregunta y avanza. Al final verás tu resultado. ¡Suerte! 🍀</div>
+      </div>
+      <div class="badge" id="progressChip">0/0</div>
+    </header>
+
+    <!-- CONTENEDOR DE PREGUNTAS -->
+    <main id="questionList" aria-live="polite"></main>
+
+    <!-- RESULTADOS -->
+    <section id="results" class="results hidden" role="region" aria-live="polite"></section>
+
+    <!-- BARRA DE NAVEGACIÓN -->
+    <div class="nav">
+      <div class="controls">
+        <button id="prevBtn" class="pill" aria-label="Ir a la página anterior">⟵ Atrás</button>
+        <button id="nextBtn" class="pill" aria-label="Ir a la página siguiente">Adelante ⟶</button>
+        <button id="finishBtn" class="pill primary" aria-label="Terminar el test">🎯 Terminar</button>
+        <button id="restartBtn" class="pill hidden" aria-label="Reiniciar el test">🔄 Reiniciar</button>
+      </div>
+      <div class="page-indicator" id="pageIndicator">Página 1</div>
+    </div>
+  </div>
+
+  <script>
+    
+    const PASS_THRESHOLD = 0.7; // 70% para aprobar (ajústalo si quieres)
+    const PAGE_SIZE = 10;
+
+    // 🔻🔻🔻 TODO: Pega aquí tus preguntas siguiendo el esquema anterior 🔻🔻🔻
+    const QUESTION_BANK = [
+    
+  {
+    id: "und2-01",
+    text: "Un procesador de texto es:",
+    options: [
+      "Una aplicación que nos permite trabajar con datos numéricos y alfanuméricos en forma de tablas compuestas por celdas.",
+      "Una aplicación que sirve para crear y modificar documentos de texto escritos con un ordenador.",
+      "Una aplicación que nos permite mostrar información mediante una serie de diapositivas.",
+      "No es una aplicación."
+    ],
+    answerIndex: 1,
+    explanation: "Ver apartado 2.1: el procesador de texto sirve para crear y editar documentos escritos. ✍️"
+  },
+  {
+    id: "und2-02",
+    text: "Una hoja de cálculo es:",
+    options: [
+      "Una aplicación que sirve para crear y modificar documentos de texto escritos con un ordenador.",
+      "Una aplicación que nos permite trabajar con datos numéricos y alfanuméricos en forma de tablas compuestas por celdas.",
+      "Una aplicación que nos permite mostrar información mediante una serie de diapositivas.",
+      "No es una aplicación."
+    ],
+    answerIndex: 1,
+    explanation: "Ver apartado 2.1: las hojas de cálculo trabajan con datos en celdas y tablas. 📊"
+  },
+  {
+    id: "und2-03",
+    text: "Un programa de presentación es:",
+    options: [
+      "Una aplicación que nos permite mostrar información mediante una serie de diapositivas.",
+      "Una aplicación que sirve para crear y modificar documentos de texto escritos con un ordenador.",
+      "Una aplicación que nos permite trabajar con datos numéricos y alfanuméricos en forma de tablas compuestas por celdas.",
+      "No es una aplicación."
+    ],
+    answerIndex: 0,
+    explanation: "Ver apartado 2.1: su función es presentar información con diapositivas. 🎞️"
+  },
+  {
+    id: "und2-04",
+    text: "Los diagramas consisten en:",
+    options: [
+      "Representar los contenidos que va a tener un producto y las relaciones entre éstos.",
+      "Representar las personas encargadas de trabajar en el proyecto.",
+      "Representar los usuarios que se beneficiarán del uso del proyecto final.",
+      "Ninguna de las respuestas anteriores es cierta."
+    ],
+    answerIndex: 0,
+    explanation: "Ver apartado 2.2: los diagramas representan contenidos y relaciones. 🧭"
+  },
+  {
+    id: "und2-05",
+    text: "Los diagramas se deben realizar:",
+    options: [
+      "De manera aleatoria recogiendo la información que se vaya encontrando en el momento de realizar el proyecto.",
+      "Investigando a los trabajadores y la manera en que ellos querrían realizar el proyecto.",
+      "A partir de la información recogida durante las etapas de investigación en las que se estudia a los usuarios para que el producto satisfaga sus necesidades.",
+      "Investigar a los trabajadores de manera ordenada."
+    ],
+    answerIndex: 2,
+    explanation: "Ver apartado 2.2: se basan en investigación sobre los usuarios y sus necesidades. 🔎"
+  },
+  {
+    id: "und2-06",
+    text: "El software de administración de proyectos se utiliza:",
+    options: [
+      "En la ingeniería de software para controlar la complejidad que trae consigo un proyecto de gran dimensión.",
+      "En las empresas para controlar los proyectos.",
+      "En ingeniería para llevar a cabo diferentes trabajos.",
+      "En las empresas para llevar a cabo diferentes trabajos."
+    ],
+    answerIndex: 1,
+    explanation: "Ver apartado 2.3: se usa en las empresas para planificar y controlar proyectos. 🗂️"
+  },
+  {
+    id: "und2-07",
+    text: "La realización de documentación técnica para productos informáticos:",
+    options: [
+      "Requiere la gestión de varias disciplinas. Pero no necesita ningún requisito legal.",
+      "Requiere la gestión de varias disciplinas. Además, hay que asegurarse de que estos documentos cumplen con unos requisitos legales.",
+      "Requiere la gestión de una disciplina pero hay que asegurarse de que cumple con unos requisitos legales.",
+      "Requiere de tan solo una disciplina pero sin ningún requisito legal."
+    ],
+    answerIndex: 1,
+    explanation: "Ver apartado 2.4: abarca varias disciplinas y debe cumplir requisitos legales. 📚⚖️"
+  },
+  {
+    id: "und2-08",
+    text: "Los informes y manuales operativos:",
+    options: [
+      "No son nada importantes en un proyecto.",
+      "El primero es importante pero el segundo no.",
+      "Son los documentos más importantes en un proyecto.",
+      "Los manuales son importantes pero los informes no."
+    ],
+    answerIndex: 2,
+    explanation: "Ver apartado 2.5: informes y manuales son clave para el proyecto. ⭐"
+  },
+  {
+    id: "und2-09",
+    text: "Un informe:",
+    options: [
+      "Puede contener los métodos y procedimientos con los que se han obtenido datos para hallar una solución pero no la solución en sí.",
+      "Puede contener la solución a un problema pero no los métodos que se han usado para llegar a la misma.",
+      "Puede contener la solución a un problema, los métodos y procedimientos con los que se han obtenido datos para hallarla y las recomendaciones.",
+      "Ninguna de las respuestas anteriores es cierta."
+    ],
+    answerIndex: 2,
+    explanation: "Ver apartado 2.5: incluye métodos, solución y recomendaciones. 🧩"
+  },
+  {
+    id: "und2-10",
+    text: "Un informe se compone de:",
+    options: [
+      "Sección Preliminar, Cuerpo del Informe y Portada.",
+      "Sección Preliminar, Cuerpo del Informe, y Tablas de Contenido.",
+      "Sección Preliminar, Cuerpo del Informe, Sección de Referencias, Portada y Tablas de Contenido.",
+      "Cuerpo del Informe, Sección de Referencias y Portada."
+    ],
+    answerIndex: 2,
+    explanation: "Ver apartado 2.5.1: partes principales + referencias y tablas de contenido. 🧱"
+  },
+ {
+    id: "final-01",
+    text: "Un proyecto se caracteriza por tener diferentes etapas, estas son:",
+    options: [
+      "Ejecución, planificación, Objetivos y cierre.",
+      "Identificación, Justificación, Objetivos, Metodología, Planificación, Análisis de Riesgos y Finalización del Producto.",
+      "Justificación, Objetivos, planificación, Análisis y Cierre.",
+      "Justificación, Objetivos, Metodología, Análisis de Riesgos y Finalización del Producto."
+    ],
+    answerIndex: 1,
+    explanation: "Apartado 1.1: esas son las etapas correctas de un proyecto."
+  },
+  {
+    id: "final-02",
+    text: "La Aprobación, Definición, Planificación, Ejecución y Cierre son:",
+    options: [
+      "Etapas de un proyecto.",
+      "Fases del ciclo de vida de un proyecto.",
+      "Modelos de organización empresarial.",
+      "Pasos para la organización de recursos humanos."
+    ],
+    answerIndex: 1,
+    explanation: "Apartado 1.3: son las fases del ciclo de vida de un proyecto."
+  },
+  {
+    id: "final-03",
+    text: "El modelo de liderazgo que se caracteriza por no dirigir al grupo, dar opiniones sólo cuando se piden y parecer que no hay nadie al cargo, es:",
+    options: [
+      "Paternalista.",
+      "Compromisario.",
+      "Laissez-Faire.",
+      "Democrático."
+    ],
+    answerIndex: 2,
+    explanation: "Apartado 1.8: ese estilo se denomina Laissez-Faire."
+  },
+  {
+    id: "final-04",
+    text: "Un equipo de alto rendimiento se caracteriza por:",
+    options: [
+      "Se comunican entre ellos pero no trabajan en equipo, aprenden nuevas técnicas.",
+      "Comunicación efectiva, aprender de los demás, hay participación en grupo.",
+      "Comunicación efectiva, voluntad de aprender de los demás, participación en el grupo.",
+      "Ninguna de las anteriores es cierta."
+    ],
+    answerIndex: 2,
+    explanation: "Apartado 1.9: esas son las características de un equipo de alto rendimiento."
+  },
+  {
+    id: "final-05",
+    text: "Una aplicación que sirve para crear y modificar documentos de texto escritos con un ordenador, es:",
+    options: [
+      "Una hoja de cálculo.",
+      "Un procesador de texto.",
+      "Un programa de presentación.",
+      "Un diagrama."
+    ],
+    answerIndex: 1,
+    explanation: "Apartado 2.1: corresponde al procesador de texto."
+  },
+  {
+    id: "final-06",
+    text: "La representación de los contenidos que va a tener un producto y las relaciones entre éstos:",
+    options: [
+      "Son diagramas.",
+      "Es una hoja de cálculo.",
+      "Es un programa de presentación.",
+      "Es un procesador de texto."
+    ],
+    answerIndex: 0,
+    explanation: "Apartado 2.2: eso corresponde a diagramas."
+  },
+  {
+    id: "final-07",
+    text: "Los documentos más importantes en un proyecto son:",
+    options: [
+      "Tan sólo los informes.",
+      "Tan sólo los manuales operativos.",
+      "Los informes y manuales operativos.",
+      "Ninguna de las anteriores es cierta."
+    ],
+    answerIndex: 2,
+    explanation: "Apartado 2.5: los dos son los documentos más importantes."
+  },
+  {
+    id: "final-08",
+    text: "Un informe se compone de:",
+    options: [
+      "Sección Preliminar, Cuerpo del Informe y Portada.",
+      "Sección Preliminar, Cuerpo del Informe, y Tablas de Contenido.",
+      "Sección Preliminar, Cuerpo del Informe, Sección de Referencias, Portada y Tablas de Contenido.",
+      "Sección Preliminar, Cuerpo del Informe y Sección de Referencias."
+    ],
+    answerIndex: 2,
+    explanation: "Apartado 2.5.1: incluye todas esas secciones."
+  },
+  {
+    id: "final-09",
+    text: "La documentación de un proyecto:",
+    options: [
+      "Es importante para proyectos nuevos.",
+      "Es importante para el mismo proyecto y de referencia para nuevos proyectos de naturaleza similar.",
+      "Es importante para proyectos nuevos tengan o no una naturaleza parecida.",
+      "Todas son ciertas."
+    ],
+    answerIndex: 1,
+    explanation: "Apartado 3.1: sirve tanto para el mismo proyecto como de referencia en proyectos similares."
+  },
+  {
+    id: "final-10",
+    text: "El documento fundamental de todos los que forman el proyecto y sirve de nexo entre todos ellos es:",
+    options: [
+      "La Memoria.",
+      "El Pliego de condiciones.",
+      "Los anexos.",
+      "Los Planos."
+    ],
+    answerIndex: 0,
+    explanation: "Apartado 3.4: la memoria es el documento fundamental."
+  },
+  {
+    id: "final-11",
+    text: "Crear las condiciones técnicas, económicas y administrativas para que el proyecto pueda materializarse en las condiciones especificadas, es:",
+    options: [
+      "El objetivo de los anexos.",
+      "El objetivo de los planos.",
+      "El objetivo del pliego de condiciones.",
+      "El objetivo de la memoria."
+    ],
+    answerIndex: 2,
+    explanation: "Apartado 3.6: es el objetivo del pliego de condiciones."
+  },
+  {
+    id: "final-12",
+    text: "Los diferentes tipos de pliegos de condiciones son:",
+    options: [
+      "De condiciones generales y de cláusulas administrativas.",
+      "De condiciones generales, de prescripciones técnicas particulares, de condiciones especiales y de cláusulas administrativas particulares.",
+      "De condiciones generales, de prescripciones técnicas particulares y de cláusulas administrativas particulares.",
+      "De condiciones generales y de prescripciones técnicas particulares."
+    ],
+    answerIndex: 1,
+    explanation: "Apartado 3.6.3: esos son los tipos de pliegos."
+  },
+  {
+    id: "final-13",
+    text: "Para el alcance de un proyecto se debe:",
+    options: [
+      "Hacer declaraciones escritas de los resultados a los que queremos llegar en un tiempo determinado.",
+      "Durante todo el ciclo de vida confirmar que el proyecto incluye todo el trabajo solicitado y llevar registro de cambios de alcance.",
+      "Ni la a) ni la b) son ciertas.",
+      "Tanto la a) como la b) son ciertas."
+    ],
+    answerIndex: 3,
+    explanation: "Apartado 4.1.1: son válidas tanto la a como la b."
+  },
+  {
+    id: "final-14",
+    text: "La percepción que el cliente tiene del mismo, el consumidor está de acuerdo con dicho producto o servicio y satisface sus necesidades, es:",
+    options: [
+      "La calidad.",
+      "El alcance del proyecto.",
+      "La gestión del coste.",
+      "Todas las respuestas son ciertas."
+    ],
+    answerIndex: 0,
+    explanation: "Apartado 4.1.3: eso corresponde a la calidad."
+  },
+  {
+    id: "final-15",
+    text: "Se pueden usar como complemento a otras técnicas para obtener información, para verificar la información recogida o en caso de que no haya otro método para conseguirla. ¿Qué es?:",
+    options: [
+      "Es una EDT.",
+      "Es una entrevista.",
+      "Es un paquete de trabajo.",
+      "Ni la a) ni la c) son verdaderas."
+    ],
+    answerIndex: 1,
+    explanation: "Apartado 4.3.2: corresponde a la entrevista."
+  },
+  {
+    id: "final-16",
+    text: "La EDT es:",
+    options: [
+      "Estructura de Desglose del Trabajo.",
+      "Una descomposición jerárquica orientada al entregable relativa al trabajo del proyecto.",
+      "Tanto la a) como la b) son ciertas.",
+      "Ninguna es cierta."
+    ],
+    answerIndex: 2,
+    explanation: "Apartado 4.3: la EDT es la estructura de desglose del trabajo y la definición completa."
+  },
+  {
+    id: "final-17",
+    text: "El diagrama de Gantt:",
+    options: [
+      "No se deben crear con más de 20 tareas.",
+      "Tanto la a) como la c) son ciertas.",
+      "No muestra las relaciones que hay entre las actividades.",
+      "Se deben crear con menos de 20 tareas."
+    ],
+    answerIndex: 1,
+    explanation: "Apartado 5.1 y 5.1.1: son correctas tanto la a como la c."
+  },
+  {
+    id: "final-18",
+    text: "Un algoritmo utilizado para el cálculo de tiempos y plazos en la planificación de proyectos es:",
+    options: [
+      "El método de la ruta crítica.",
+      "Un diagrama de Gantt.",
+      "Una técnica PERT.",
+      "La holgura de una tarea."
+    ],
+    answerIndex: 0,
+    explanation: "Apartado 5.2.1: corresponde al método de la ruta crítica."
+  },
+  {
+    id: "final-19",
+    text: "Una herramienta que resume los procesos en los que se da un conjunto de condiciones y acciones a decidir según el valor de esas condiciones, son:",
+    options: [
+      "El diagrama de Gantt.",
+      "Una técnica PERT.",
+      "Las tablas de decisión.",
+      "Todas las anteriores son ciertas."
+    ],
+    answerIndex: 2,
+    explanation: "Apartado 5.4.3: corresponde a las tablas de decisión."
+  },
+  {
+    id: "final-20",
+    text: "¿Qué es el tiempo disponible para hacer cada tarea?:",
+    options: [
+      "Lo determinan las fechas en que se produce su inicio y su fin.",
+      "La duración de una actividad puede reducirse añadiendo recursos adicionales, incrementando su coste.",
+      "Tanto la a como la b son ciertas.",
+      "Lo determinan sólo las fechas en que se produce su inicio."
+    ],
+    answerIndex: 2,
+    explanation: "Apartado 5.9.4: son ciertas tanto la a como la b."
+  },
+
+{
+  id: "t3-01",
+  text: "¿Por qué es importante la documentación de un proyecto?",
+  options: [
+    "Para proyectos nuevos.",
+    "Para el mismo proyecto y de referencia para nuevos proyectos de naturaleza similar.",
+    "Para proyectos nuevos tengan o no una naturaleza parecida.",
+    "Ninguna de las respuestas anteriores es cierta."
+  ],
+  answerIndex: 1,
+  explanation: "Aporta valor al propio proyecto y sirve como referencia para otros similares. (ap. 3.1)"
+},
+{
+  id: "t3-02",
+  text: "Los documentos más importantes de un proyecto son:",
+  options: [
+    "Índice General, Memoria, Anexos, Planos y Estudios con Entidad.",
+    "Índice General, Memoria, Anexos, Planos, Pliego de Condiciones y Estudios con Entidad.",
+    "Memoria, Anexos, Planos y Pliego de Condiciones.",
+    "Memoria, Anexos, Planos, Pliego de Condiciones y Estudios con Entidad."
+  ],
+  answerIndex: 3,
+  explanation: "Conjunto clave: Memoria, Anexos, Planos, Pliego de Condiciones y Estudios con Entidad. (ap. 3.2)"
+},
+{
+  id: "t3-03",
+  text: "¿Qué es la norma UNE157001?",
+  options: [
+    "Un conjunto de documentos para definir y valorar características de productos, obras, instalaciones, software, etc., en función de su fin.",
+    "Los documentos de obra e instalación.",
+    "Una aplicación para trabajar con documentos de obra, instalación y software.",
+    "Todas son correctas."
+  ],
+  answerIndex: 0,
+  explanation: "Define y normaliza cómo especificar y valorar productos/obras/instalaciones/software. (ap. 3.3)"
+},
+{
+  id: "t3-04",
+  text: "¿Qué es la Memoria?",
+  options: [
+    "El documento fundamental del proyecto y nexo entre todos los demás.",
+    "El documento menos importante cuyo objetivo es justificar soluciones.",
+    "Un documento importante independiente de los demás documentos.",
+    "Un documento independiente sin importancia para el proyecto."
+  ],
+  answerIndex: 0,
+  explanation: "Es el documento troncal y articulador del proyecto. (ap. 3.4)"
+},
+{
+  id: "t3-05",
+  text: "La memoria debe contener:",
+  options: [
+    "Antecedentes, Objeto del proyecto, Anexo, Estudio económico, Planos, Servicios afectados, Descripción de las obras, Condiciones facultativas, Resumen de presupuestos, Plan de obra, Índice del proyecto y Conclusiones.",
+    "Son ciertas la a y la c.",
+    "Antecedentes, Objeto del proyecto, Estudio de alternativas posibles, Estudio económico, Justificación de la solución adoptada, Servicios afectados, Descripción de las obras, Condiciones facultativas, Resumen de presupuestos, Plan de obra, Índice del proyecto y Conclusiones.",
+    "Objeto del proyecto, Anexo, Estudio económico, Planos, Servicios afectados, Descripción de las obras, Condiciones facultativas, Resumen de presupuestos y Plan de obra, Índice del proyecto."
+  ],
+  answerIndex: 2,
+  explanation: "Incluye alternativas, justificación, descripción, costes, plan de obra, etc. (ap. 3.4.2)"
+},
+{
+  id: "t3-06",
+  text: "En los anexos de la memoria:",
+  options: [
+    "La b y la c son verdaderas.",
+    "Se reúnen datos, dudas, cálculos y estudios; justifican lo escrito en la Memoria.",
+    "Son testimonio de los trabajos realizados durante la elaboración del proyecto.",
+    "Ni la a ni la b son verdaderas."
+  ],
+  answerIndex: 0,
+  explanation: "Recopilan y justifican la memoria y documentan el trabajo realizado. (ap. 3.4.3)"
+},
+{
+  id: "t3-07",
+  text: "¿Qué es un documento? (en el contexto de Planos del proyecto)",
+  options: [
+    "Contendrá todos los planos necesarios, con info gráfica/alfanumérica/códigos/escalas para comprenderlos.",
+    "Tanto la a como la c son ciertas.",
+    "Son la representación gráfica de todos los elementos que plantea el proyecto.",
+    "No son representaciones gráficas de los elementos, pero contendrá algunos planos."
+  ],
+  answerIndex: 1,
+  explanation: "Los planos son representación gráfica y deben incluir toda la información necesaria. (ap. 3.5)"
+},
+{
+  id: "t3-08",
+  text: "El objetivo del pliego de condiciones es:",
+  options: [
+    "Incluir todos los planos necesarios para definir la solución.",
+    "Justificar las soluciones adoptadas (es el menos importante).",
+    "Crear las condiciones técnicas, económicas y administrativas para materializar el proyecto en las condiciones especificadas.",
+    "Representar gráficamente los elementos del proyecto."
+  ],
+  answerIndex: 2,
+  explanation: "Fija condiciones técnicas, económicas y administrativas del proyecto. (ap. 3.6)"
+},
+{
+  id: "t3-09",
+  text: "¿Qué tipos de pliegos de condiciones hay?",
+  options: [
+    "De condiciones generales y de cláusulas administrativas.",
+    "De condiciones generales, de prescripciones técnicas particulares, de condiciones especiales y de cláusulas administrativas particulares.",
+    "De condiciones generales, de prescripciones técnicas particulares y de cláusulas administrativas particulares.",
+    "De condiciones generales y de prescripciones técnicas particulares."
+  ],
+  answerIndex: 1,
+  explanation: "Relación completa de tipos de pliegos. (ap. 3.6.3)"
+},
+{
+  id: "t3-10",
+  text: "Un presupuesto:",
+  options: [
+    "Su objetivo será determinar el coste económico del proyecto.",
+    "Se basará en el estado de mediciones y seguirá el mismo orden.",
+    "Serán ciertas tanto la a como la b.",
+    "Se basará en el estado de mediciones pero no seguirá el mismo orden."
+  ],
+  answerIndex: 2,
+  explanation: "Objetivo: coste; base: mediciones, siguiendo el mismo orden. (ap. 3.7)"
+},
+{
+  id: "t4-01",
+  text: "¿Qué son los objetivos?",
+  options: [
+    "Son declaraciones escritas de los resultados a los que queremos llegar en un tiempo determinado, de manera que nos aseguremos que todos los implicados van en la misma dirección.",
+    "Las a) y la c) son ciertas.",
+    "La definición de los objetivos es uno de los pasos más importantes a la hora de desarrollar un proyecto y se debe realizar una planificación detallada y alcanzar el compromiso de participación de todos.",
+    "Ninguna es cierta."
+  ],
+  answerIndex: 1,
+  explanation: "Según 4.1: son ciertas tanto la declaración de resultados como la importancia de la definición y compromiso."
+},
+{
+  id: "t4-02",
+  text: "Se debe dirigir el alcance de un proyecto:",
+  options: [
+    "Hacer declaraciones escritas de los resultados a los que queremos llegar en un tiempo determinado.",
+    "Durante todo el ciclo de vida del mismo, confirmando que el proyecto incluye todo el trabajo solicitado en función de los requisitos y llevando a cabo un registro de los cambios de alcance producidos.",
+    "Ninguna de las dos anteriores es cierta.",
+    "Tanto la a) como la b) son ciertas."
+  ],
+  answerIndex: 3,
+  explanation: "Según 4.1.1: son ciertas tanto la a como la b."
+},
+{
+  id: "t4-03",
+  text: "¿Cuáles son las tareas para realizar el alcance del proyecto?",
+  options: [
+    "Planificación del alcance, Definición del Alcance, Verificación del Alcance y Control de cambios en el alcance.",
+    "Planificación del alcance y Control de cambios en el alcance.",
+    "Definición del Alcance, Verificación del Alcance y Control de cambios en el alcance.",
+    "Planificación del alcance, Verificación del Alcance y Control de cambios en el alcance."
+  ],
+  answerIndex: 0,
+  explanation: "Según 4.1.1: esas son las cuatro tareas principales."
+},
+{
+  id: "t4-04",
+  text: "¿Qué es la calidad?",
+  options: [
+    "Es la percepción que el cliente tiene del mismo, el consumidor está de acuerdo con dicho producto o servicio y satisface sus necesidades.",
+    "Es un documento poco importante cuyo objetivo es justificar las soluciones adoptadas.",
+    "Las dos anteriores son ciertas.",
+    "Es la percepción que el cliente tiene del mismo, el consumidor no está de acuerdo con dicho producto o servicio y no satisface sus necesidades."
+  ],
+  answerIndex: 0,
+  explanation: "Según 4.1.3: la calidad es la percepción positiva del cliente/consumidor."
+},
+{
+  id: "t4-05",
+  text: "La gestión del coste:",
+  options: [
+    "Incluye todas las tareas necesarias para la planificación, estimación, pero sin llevar control de costes.",
+    "Incluye todas las tareas necesarias para la planificación y control de costes.",
+    "Incluye todas las tareas necesarias para la planificación, estimación, obtención del plan de referencia de costes, y control de costes, para así finalizar el proyecto con el presupuesto asignado.",
+    "No incluye todas las tareas necesarias para la planificación y control de costes."
+  ],
+  answerIndex: 2,
+  explanation: "Según 4.2.3: abarca planificación, estimación, plan de referencia y control."
+},
+{
+  id: "t4-06",
+  text: "¿Qué es un instrumento para obtener información?",
+  options: [
+    "Es cualquier recurso que utilice el investigador para acercarse a los fenómenos y extraer de ellos información.",
+    "Ninguna es cierta.",
+    "Son el testimonio de todos los trabajos realizados en la elaboración del proyecto.",
+    "Es cualquier recurso que utilice el investigador para acercarse a los fenómenos pero sin extraer de ellos información."
+  ],
+  answerIndex: 0,
+  explanation: "Según 4.3: es todo recurso que permita al investigador obtener información de un fenómeno."
+},
+{
+  id: "t4-07",
+  text: "¿Qué es una entrevista?",
+  options: [
+    "La finalidad de esta es obtener información de algo concreto, tanto de hechos objetivos (características físicas, económicas, sociales,...) como de hechos subjetivos (ideas, opiniones, actitudes, perspectivas, intenciones,...).",
+    "Tanto la a) como la c) son ciertas.",
+    "Se pueden usar como complemento a otras técnicas para obtener información, para verificar la información recogida o en caso de que no haya otro método para conseguir la información.",
+    "Ni la a) ni la c) son verdaderas."
+  ],
+  answerIndex: 1,
+  explanation: "Según 4.3.2: la entrevista combina finalidad de obtener datos objetivos/subjetivos y sirve de técnica complementaria."
+},
+{
+  id: "t4-08",
+  text: "La definición del alcance de un proyecto:",
+  options: [
+    "Es uno de los primeros trabajos en la creación de un proyecto.",
+    "Ninguna es cierta.",
+    "Es uno de los primeros trabajos en la creación de un proyecto, limitando los trabajos a desarrollar para cumplir los objetivos planteados en el proyecto, y explicación de los conceptos entregables que van a formar parte del mismo.",
+    "Es uno de los primeros trabajos en la creación de un proyecto, sin limitar los trabajos a desarrollar ni explicar los entregables."
+  ],
+  answerIndex: 2,
+  explanation: "Según 4.3: incluye limitación de trabajos y explicación de entregables."
+},
+{
+  id: "t4-09",
+  text: "¿Qué es la EDT?",
+  options: [
+    "Estructura de Desglose del Trabajo.",
+    "Una descomposición jerárquica, orientada al entregable, relativa al trabajo que será realizado por el equipo del proyecto para conseguir los objetivos del proyecto y crear los entregables pedidos.",
+    "Tanto la a) como la b) son ciertas.",
+    "Una descomposición jerárquica, orientada al entregable, relativa al trabajo pero no será realizado por el equipo del proyecto."
+  ],
+  answerIndex: 2,
+  explanation: "Según 4.3: la EDT es tanto la estructura como la definición jerárquica del trabajo orientado a entregables."
+},
+{
+  id: "t4-10",
+  text: "Los paquetes de trabajo:",
+  options: [
+    "Son el nivel más bajo de la EDT, dónde se encuentra planificado el trabajo.",
+    "Puede ser programado, monitoreado, controlado, y su costo puede ser calculado.",
+    "Tanto la a) como la b) son ciertas.",
+    "Ni la a) ni la b) son ciertas."
+  ],
+  answerIndex: 2,
+  explanation: "Según 4.3.4: ambas características son correctas."
+},
+{
+  id: "t5-01",
+  text: "El diagrama de Gantt:",
+  options: [
+    "Es una herramienta gráfica muy conocida y su fin es enseñar el tiempo de dedicación previsto para diferentes tareas o actividades a lo largo de un tiempo total determinado.",
+    "Tanto la a) como la c) son ciertas.",
+    "No muestra las relaciones que hay entre las actividades.",
+    "Muestra las relaciones que hay entre las actividades."
+  ],
+  answerIndex: 1,
+  explanation: "Según 5.1: es gráfico para tiempos, y además no muestra relaciones entre actividades, por eso a) y c) son correctas."
+},
+{
+  id: "t5-02",
+  text: "Los diagramas de Gantt:",
+  options: [
+    "No se deben crear con más de 50 tareas.",
+    "No se deben crear con más de 20 tareas.",
+    "Ninguna de las dos anteriores es cierta.",
+    "Se deben crear más de 20 tareas."
+  ],
+  answerIndex: 1,
+  explanation: "Según 5.1.1: lo recomendable es no superar las 20 tareas."
+},
+{
+  id: "t5-03",
+  text: "El método de la ruta crítica es:",
+  options: [
+    "Un algoritmo utilizado para el cálculo de tiempos y plazos en la planificación de proyectos.",
+    "Un algoritmo utilizado para la ejecución de proyectos.",
+    "Ninguna es cierta.",
+    "Un algoritmo usado para los plazos de planificación de proyectos pero no para el cálculo de tiempos."
+  ],
+  answerIndex: 0,
+  explanation: "Según 5.2.1: se usa para calcular tiempos y plazos."
+},
+{
+  id: "t5-04",
+  text: "La técnica PERT:",
+  options: [
+    "La b) y la c) son ciertas.",
+    "Es un modelo para la administración y gestión de proyectos.",
+    "Se llama así por sus siglas en inglés Project Evaluation and Review Techniques.",
+    "Ni la b) ni la c) son ciertas."
+  ],
+  answerIndex: 0,
+  explanation: "Según 5.2.1: tanto definición como siglas son ciertas."
+},
+{
+  id: "t5-05",
+  text: "El Early time de un suceso:",
+  options: [
+    "Es el tiempo mínimo necesario para finalizar una tarea concreta.",
+    "Es el tiempo mínimo necesario para acabar un proyecto.",
+    "Es el tiempo mínimo necesario para llegar a ese suceso.",
+    "Ninguna de las anteriores es verdad."
+  ],
+  answerIndex: 2,
+  explanation: "Según 5.2.7: corresponde al tiempo mínimo para llegar a un suceso."
+},
+{
+  id: "t5-06",
+  text: "¿Qué es la holgura de una tarea?",
+  options: [
+    "Es el tiempo que tiene ésta disponible para, ya sea, retrasarse en su fecha de inicio, o bien prolongarse en su tiempo esperado de ejecución, sin que ello desencadene retraso alguno en la fecha de finalización del proyecto.",
+    "Ninguna es cierta.",
+    "Es el tiempo que tiene ésta disponible para retrasarse en su fecha de inicio sin que ello desencadene retraso alguno en la fecha de finalización del proyecto.",
+    "Es el tiempo que tiene ésta para prolongarse en su tiempo esperado sin que ello desencadene retraso alguno en la fecha de finalización del proyecto."
+  ],
+  answerIndex: 0,
+  explanation: "Según 5.2.8: la holgura permite retraso o extensión sin afectar el final del proyecto."
+},
+{
+  id: "t5-07",
+  text: "La programación:",
+  options: [
+    "Precisa la planificación en su ámbito real, pero no es necesario fijar un calendario de fechas de inicio y fin a cada tarea, para lo que sólo era una ordenación secuencial lógica (planificación).",
+    "Precisa la planificación en su ámbito real, fijando un calendario de fechas de inicio y fin a cada tarea, para lo que sólo era una ordenación secuencial lógica (planificación).",
+    "Las a) como la b) son ciertas.",
+    "Ni la a) ni la b) son ciertas."
+  ],
+  answerIndex: 1,
+  explanation: "Según 5.2.9: la programación precisa un calendario real de inicio y fin."
+},
+{
+  id: "t5-08",
+  text: "Los pasos para la planificación de un proyecto de implantación de infraestructura son:",
+  options: [
+    "Conocimientos previos, Descripción de la solicitud de red: Planteo del Problema, Análisis de la red a instalar, Definición de la red, Instalación de la red.",
+    "Ni la a) ni la c) son cierta.",
+    "Conocimientos previos, Descripción de la solicitud de red: Planteo del Problema, Investigación del cliente, Análisis de la red a instalar, Definición de la red, Instalación de la red.",
+    "Conocimientos previos, Descripción de la solicitud de red: Investigación del cliente, Análisis de la red a instalar, Definición de la red, Instalación de la red."
+  ],
+  answerIndex: 2,
+  explanation: "Según 5.3: incluye investigación del cliente."
+},
+{
+  id: "t5-09",
+  text: "Las Tablas de decisión son:",
+  options: [
+    "Una manera de representar gráficamente un conjunto de datos o valores, formada por barras rectangulares de longitudes proporcionales a los valores representados.",
+    "El esquema de conexiones de cualquier diseño o circuito.",
+    "Una herramienta que resume los procesos en lo que se da un conjunto de condiciones y de acciones a decidir según el valor que tienen las condiciones.",
+    "Todas las anteriores son ciertas."
+  ],
+  answerIndex: 2,
+  explanation: "Según 5.4.3: resumen procesos con condiciones y acciones."
+},
+{
+  id: "t5-10",
+  text: "El tiempo disponible para hacer cada tarea:",
+  options: [
+    "Lo determinan las fechas en que se produce su inicio y su fin.",
+    "La duración de una actividad puede reducirse añadiendo recursos adicionales pero los cuáles incrementan su coste.",
+    "Tanto la a) como la b) son ciertas.",
+    "Lo determinan sólo la fecha en que se produce su inicio."
+  ],
+  answerIndex: 2,
+  explanation: "Según 5.9.4: son ciertas tanto a como b."
+},
+{
+  id: "t1-01",
+  text: "El propósito básico del seguimiento de control es:",
+  options: [
+    "El control de tan sólo algunas actividades del desarrollo del sistema.",
+    "El control de todas las actividades de desarrollo del sistema.",
+    "Ninguna es cierta.",
+    "Todas son ciertas."
+  ],
+  answerIndex: 1,
+  explanation: "Según 1.1: el control debe aplicarse a todas las actividades de desarrollo del sistema."
+},
+{
+  id: "t1-02",
+  text: "Las diferentes etapas del Control de Seguimiento son:",
+  options: [
+    "Asignación Detallada de Tareas, Comunicación al Equipo de Proyecto, Seguimiento de Tareas, Análisis y Registro de Incidencias, Petición de Cambio de Requisitos, Aprobación de la Solución, Estimación de Esfuerzo, Registro del Cambio de Requisitos, Finalización de la Tarea, Actualización de la Planificación, Reuniones de Seguimiento y Aceptación.",
+    "Asignación Detallada de Tareas, Comunicación al Equipo de Proyecto, Seguimiento de Tareas, Análisis y Registro de Incidencias, Petición de Cambio de Requisitos, Análisis de la Petición de Cambios de requisitos, Aprobación de la Solución, Estimación de Esfuerzo y Planificación de la Solución, Registro del Cambio de Requisitos, Finalización de la Tarea, Actualización de la Planificación, Reuniones de Seguimiento y Aceptación.",
+    "Ninguna es cierta.",
+    "Asignación Detallada de Tareas, Comunicación al Equipo de Proyecto, Seguimiento de Tareas, Análisis y Registro de Incidencias, Petición de Cambio de Requisitos, Análisis de la Petición de Cambios de requisitos, Aprobación de la Solución, Estimación de Esfuerzo y Planificación de la Solución, Registro del Cambio de Requisitos, Finalización de la Tarea, y Aceptación."
+  ],
+  answerIndex: 1,
+  explanation: "Según 1.1: esa es la secuencia correcta de etapas."
+},
+{
+  id: "t1-03",
+  text: "Las características generales que debe poseer el control son:",
+  options: [
+    "Integral, Periódico, Selectivo, Creativo, Efectivo y Eficiente, Adecuado, Adaptado Motivador y Flexible.",
+    "Integral, Periódico, Selectivo, Creativo, Efectivo, Adecuado, Motivador y Flexible.",
+    "Integral, Selectivo, Creativo, Eficiente, Adecuado, Adaptado Motivador y Flexible.",
+    "Integral, Periódico, Selectivo, Creativo, Efectivo y Eficiente, Adecuado y Adaptado."
+  ],
+  answerIndex: 0,
+  explanation: "Según 1.1: debe ser integral, periódico, selectivo, creativo, efectivo y eficiente, adecuado, adaptado, motivador y flexible."
+},
+{
+  id: "t1-04",
+  text: "Los planes previstos:",
+  options: [
+    "Son conocidos como de línea base. Si se guarda la información de la línea base en ese punto después se podrá comparar el progreso real con el plan inicial.",
+    "Es la información más actualizada sobre las tareas.",
+    "Refleja el modo en que las tareas se llevan a cabo finalmente.",
+    "Si se guarda la información de la línea base en ese punto después no se podrá comparar el progreso real con el plan inicial."
+  ],
+  answerIndex: 0,
+  explanation: "Según 1.2: se conocen como línea base y permiten comparar el progreso real con el inicial."
+},
+{
+  id: "t1-05",
+  text: "Los planes programados:",
+  options: [
+    "Son conocidos como de línea base. Si se guarda la información de la línea base en ese punto después de podrá comparar el progreso real con el plan inicial.",
+    "Es la información más actualizada sobre las tareas.",
+    "Refleja el modo en que las tareas se llevan a cabo finalmente.",
+    "Refleja el modo en que las tareas se llevan a cabo en un principio."
+  ],
+  answerIndex: 1,
+  explanation: "Según 1.2: los planes programados son la información más actualizada sobre las tareas."
+},
+{
+  id: "t1-06",
+  text: "Para establecer un buen diálogo entre los miembros de un equipo de proyecto hay que:",
+  options: [
+    "Planificar el proceso, preparar el ambiente, preparar la documentación, creer en lo que comunicas, conocer a tu audiencia, y clarificar el propósito de la comunicación.",
+    "Planificar el proceso, preparar el ambiente, preparar la documentación, conocer a tu audiencia, y clarificar el propósito de la comunicación.",
+    "Planificar el proceso, preparar el ambiente, preparar la documentación, creer en lo que comunicas, y clarificar el propósito de la comunicación.",
+    "Preparar el ambiente, preparar la documentación, creer en lo que comunicas, conocer a tu audiencia, y clarificar el propósito de la comunicación."
+  ],
+  answerIndex: 0,
+  explanation: "Según 1.3.2: se deben cumplir todos esos aspectos para un buen diálogo."
+},
+{
+  id: "t1-07",
+  text: "En el seguimiento de tareas el responsable debe de informar:",
+  options: [
+    "La fecha real de comienzo, el tiempo empleado hasta el momento de su realización, el tanto por ciento de alcance sobre el total, los problemas o incidencias encontradas.",
+    "La fecha real de comienzo, el tiempo empleado hasta el momento de su realización, apreciación del tiempo que queda para su terminarla, el tanto por ciento de alcance sobre el total, los problemas o incidencias encontradas.",
+    "El tiempo empleado hasta el momento de su realización, apreciación del tiempo que queda para su terminarla, el tanto por ciento de alcance sobre el total, los problemas o incidencias encontradas.",
+    "Ninguna es cierta."
+  ],
+  answerIndex: 1,
+  explanation: "Según 1.3.3: se debe informar fecha real de inicio, tiempo empleado, tiempo restante, % completado e incidencias."
+},
+{
+  id: "t1-08",
+  text: "El precio de venta es:",
+  options: [
+    "La suma de todos los ingresos menos el coste de los fondos y los gastos operativos.",
+    "Tanto la a) como la c) son correctas.",
+    "La suma de los costes más los márgenes de beneficio que se quieren lograr.",
+    "Ni la a) ni la c) son ciertas."
+  ],
+  answerIndex: 1,
+  explanation: "Según 1.4: tanto la fórmula de ingresos-costes como la de costes+márgenes son correctas."
+},
+{
+  id: "t1-09",
+  text: "El margen neto es:",
+  options: [
+    "La suma de los costes más los márgenes de beneficio que se quieren lograr.",
+    "Tanto la a) como la c) son correctas.",
+    "La suma de todos los ingresos menos el coste de los fondos y los gastos operativos.",
+    "La suma de todos los ingresos más el coste de los fondos y los gastos operativos."
+  ],
+  answerIndex: 2,
+  explanation: "Según 1.4: es la diferencia entre ingresos y costes (fondos + gastos)."
+},
+{
+  id: "t1-10",
+  text: "Los documentos de producto del seguimiento y control:",
+  options: [
+    "No necesitan ser contrastados.",
+    "Tienen que cotejarse las especificaciones exigidas con las previstas.",
+    "Tienen que contrastarse las especificaciones exigidas y previstas con las realizaciones concretas.",
+    "Ninguna es cierta."
+  ],
+  answerIndex: 2,
+  explanation: "Según 1.5: deben compararse especificaciones exigidas, previstas y realizaciones."
+},
+{
+  id: "t2-01",
+  text: "Los POE son:",
+  options: [
+    "Procedimientos operativos estandarizados de sanitización.",
+    "Procedimientos operativos estandarizados.",
+    "Productos operativos estandarizados.",
+    "Productos operativos sanitizados."
+  ],
+  answerIndex: 1,
+  explanation: "Según 2.1: POE significa Procedimientos Operativos Estandarizados."
+},
+{
+  id: "t2-02",
+  text: "El procedimiento de las buenas prácticas consiste:",
+  options: [
+    "Escribir lo que se hace, hacer lo que pienses, registrar lo que se hizo, verificar y corregir y mejorar.",
+    "Escribir lo que se hace, hacer lo que se ha escrito, registrar lo que se hizo, verificar y corregir y mejorar.",
+    "Escribir lo que se hace, hacer lo que se ha escrito, verificar y corregir y mejorar.",
+    "Hacer lo que se ha escrito, registrar lo que se hizo, verificar y corregir y mejorar."
+  ],
+  answerIndex: 1,
+  explanation: "Según 2.1: se debe escribir lo que se hace, hacer lo escrito, registrar, verificar, corregir y mejorar."
+},
+{
+  id: "t2-03",
+  text: "En la fase de elaboración de proyectos, en la fase de documentación encontramos que:",
+  options: [
+    "Los documentos más importantes son realizados y modificados por el administrador, revisados por el jefe de la oficina asesora de planeación y sistemas y aprobados por el rector.",
+    "Las caracterizaciones son realizadas solo por los líderes de proceso, mientras que el resto de documentos generales son efectuados por los usuarios internos y aprobados por el líder del proceso.",
+    "Tanto la a) como la b) son ciertas.",
+    "Ni la a) ni la b) son ciertas."
+  ],
+  answerIndex: 2,
+  explanation: "Según 2.2.1: tanto a) como b) son correctas."
+},
+{
+  id: "t2-04",
+  text: "El listado de las actividades necesarias y su secuencia es:",
+  options: [
+    "Conjunto de actividades relacionadas entre sí, que partiendo de una o varias entradas de información, llegan a una o varias salidas de información con valor añadido y un resultado que satisface completamente las peticiones del cliente al que va dirigido.",
+    "Conjunto de actividades que partiendo de una o varias entradas de información, llegan un resultado que satisface medianamente al cliente al que va dirigido.",
+    "Ninguna es verdad.",
+    "Conjunto de actividades relacionadas entre sí, que partiendo de una o varias entradas de información, llegan a una o varias salidas de información con valor añadido y un resultado que no satisface las peticiones del cliente al que va dirigido."
+  ],
+  answerIndex: 0,
+  explanation: "Según 2.2.2: define procesos con entradas, salidas y satisfacción del cliente."
+},
+{
+  id: "t2-05",
+  text: "Los diagramas de flujo son:",
+  options: [
+    "Son una combinación de símbolos y explicaciones que manifiestan secuencialmente los pasos de un proceso, de tal manera que este sea más fácilmente comprendida.",
+    "Son una representación gráfica con la que se interpretan las distintas operaciones que forman un procedimiento o parte de él, definiendo su secuencia cronológica.",
+    "Tanto la a) como la b) son verdad.",
+    "Ni la a) ni la b) son ciertas."
+  ],
+  answerIndex: 2,
+  explanation: "Según 2.2.3: cumplen ambas definiciones (a y b)."
+},
+{
+  id: "t2-06",
+  text: "La estructura del desarrollo del documento es:",
+  options: [
+    "Portada, Objeto, Alcance, Referencias, Definiciones, Responsabilidades y Desarrollo.",
+    "Portada, Objeto, Referencias, Definiciones, Responsabilidades y Desarrollo.",
+    "Portada, Objeto, Alcance, Referencias, Definiciones y Responsabilidades.",
+    "Objeto, Alcance, Referencias, Definiciones, Responsabilidades y Desarrollo."
+  ],
+  answerIndex: 0,
+  explanation: "Según 2.2.4: esa es la estructura completa correcta."
+},
+{
+  id: "t2-07",
+  text: "La fase de Revisión y Verificación:",
+  options: [
+    "Cuando se hayan corregido y aclarado todas las observaciones por parte del encargado de la modificación, el responsable de comprobar la modificación manda el documento al último responsable de revisión para que éste dé el visto bueno al documento cambiado.",
+    "Cuando se hayan corregido y aclarado todas las observaciones por parte del encargado de la modificación, el responsable de comprobar la modificación da el visto bueno al documento cambiado.",
+    "Ninguna es cierta.",
+    "Todas son ciertas."
+  ],
+  answerIndex: 0,
+  explanation: "Según 2.2.5: el documento corregido se envía al último responsable de revisión para aprobación."
+},
+{
+  id: "t2-08",
+  text: "La aprobación:",
+  options: [
+    "La aprobación la da un órgano cuya formación es la correcta para su aprobación oficial, lo que dota al documento de la autoridad necesaria para formar parte del sistema y, por lo que, su cumplimiento por parte de la organización es obligado.",
+    "Los documentos tienen que ser revisados y aprobados de acuerdo con el plan descrito en el Cuadro de Revisores de un Documento.",
+    "Tanto la a) como la b) son correctas.",
+    "Ni la a) ni la b) son ciertas."
+  ],
+  answerIndex: 2,
+  explanation: "Según 2.2.6: tanto la autoridad oficial como el plan de revisores son válidos."
+},
+{
+  id: "t2-09",
+  text: "La fase de identificación:",
+  options: [
+    "En la gestión por procesos resulta esencial definir indicadores para medir, examinar y revisar los propios procesos. Lo que no se mide no se puede tramitar y, por lo tanto, no se puede mejorar.",
+    "Tanto la a) como la c) son correctas.",
+    "En la gestión por procesos no es necesario definir indicadores para medir, examinar y revisar los propios procesos.",
+    "Lo que no se mide se puede tramitar y mejorar."
+  ],
+  answerIndex: 0,
+  explanation: "Según 2.2.7: es esencial medir mediante indicadores."
+},
+{
+  id: "t2-10",
+  text: "El Registro:",
+  options: [
+    "Son documentos que muestran posibles resultados o demostraciones de actividades.",
+    "Tanto la a) como la c) son correctas.",
+    "Son documentos que muestran resultados conseguidos o proporcionan demostraciones de actividades realizadas.",
+    "No se muestran los resultados conseguidos."
+  ],
+  answerIndex: 2,
+  explanation: "Según 2.2.8: los registros muestran resultados conseguidos/demostraciones de actividades."
+},
+// --- Bloque: Test 3 (cap. 3 – Suministro eléctrico) ---
+{
+  id: "t3b-01",
+  text: "Un suministro normal (SN):",
+  options: [
+    "Es aquel dedicado a mantener un servicio restringido de los elementos de funcionamiento indispensables de la instalación receptora, con una potencia mínima del 25% de la potencia total contratada para el suministro normal, cuando falle el suministro normal.",
+    "Es el que se realiza normalmente por una empresa suministradora.",
+    "Es aquel dedicado a mantener un servicio restringido de los elementos de funcionamiento indispensables de la instalación receptora, con una potencia mínima del 75% de la potencia total contratada para el suministro normal, cuando falle el suministro normal.",
+    "Ninguna es cierta."
+  ],
+  answerIndex: 1,
+  explanation: "Según 3.1: el suministro normal es el que presta la empresa suministradora."
+},
+{
+  id: "t3b-02",
+  text: "Un suministro complementario (SC):",
+  options: [
+    "Es el que se realiza normalmente por una empresa suministradora.",
+    "Es aquel dedicado a mantener un servicio restringido de los elementos de funcionamiento indispensables de la instalación receptora, con una potencia mínima del 25% de la potencia total contratada para el suministro normal, cuando falle el suministro normal.",
+    "Es aquel dedicado a mantener un servicio restringido de los elementos de funcionamiento indispensables de la instalación receptora, con una potencia mínima del 75% de la potencia total contratada para el suministro normal, cuando falle el suministro normal.",
+    "Ninguna es cierta."
+  ],
+  answerIndex: 1,
+  explanation: "Según 3.1: el suministro complementario mantiene servicio restringido con al menos un 25%."
+},
+{
+  id: "t3b-03",
+  text: "¿Cuál de los siguientes objetivos de las medidas de magnitudes eléctricas es un objetivo general?",
+  options: [
+    "Realizar exposiciones y trabajos para conocer más sobre el tema.",
+    "Hacer preguntas acerca de este tema y así ver si se aprendieron los símbolos y su representación.",
+    "Definir cuáles son las magnitudes y unidades de la electricidad.",
+    "Ninguna es cierta."
+  ],
+  answerIndex: 2,
+  explanation: "Según 3.2: un objetivo general es definir magnitudes y unidades de la electricidad."
+},
+{
+  id: "t3b-04",
+  text: "¿Cuál de los siguientes objetivos de las medidas de magnitudes eléctricas es un objetivo específico?",
+  options: [
+    "Saber reconocer los aparatos y cuál es el de cada magnitud.",
+    "Qué significa cada una, con qué letra se representa y cuál es el símbolo correspondiente.",
+    "Definir los distintos aparatos para medir las magnitudes y sus unidades.",
+    "Todas son ciertas."
+  ],
+  answerIndex: 3,
+  explanation: "Según 3.2: los objetivos específicos incluyen todos esos aspectos."
+},
+{
+  id: "t3b-05",
+  text: "¿Qué es la tensión?",
+  options: [
+    "Es el flujo de carga eléctrica por unidad de tiempo que pasa por un material.",
+    "Es la oposición al paso de la corriente alterna.",
+    "Es una magnitud física que cuantifica la diferencia de potencial eléctrico entre dos puntos.",
+    "Es el paso de la corriente alterna."
+  ],
+  answerIndex: 2,
+  explanation: "Según 3.2.1: la tensión es la diferencia de potencial entre dos puntos."
+},
+{
+  id: "t3b-06",
+  text: "¿Qué es la intensidad?",
+  options: [
+    "Es el flujo de carga eléctrica por unidad de tiempo que pasa por un material.",
+    "Es la oposición al paso de la corriente alterna.",
+    "Es una magnitud física que cuantifica la diferencia de potencial eléctrico entre dos puntos.",
+    "Es el paso de la corriente alterna."
+  ],
+  answerIndex: 0,
+  explanation: "Según 3.2.1: la intensidad es el flujo de carga por unidad de tiempo."
+},
+{
+  id: "t3b-07",
+  text: "Las características más importantes de un dispositivo de medida son:",
+  options: [
+    "Precisión, Exactitud y Sensibilidad.",
+    "Precisión, Exactitud, Apreciación y Sensibilidad.",
+    "Exactitud, Apreciación y Sensibilidad.",
+    "Precisión, Exactitud y Apreciación."
+  ],
+  answerIndex: 1,
+  explanation: "Según 3.2.2: las características principales son precisión, exactitud, apreciación y sensibilidad."
+},
+{
+  id: "t3b-08",
+  text: "Un fusible es:",
+  options: [
+    "Es un dispositivo que puede cortar la corriente eléctrica de un circuito cuando ésta excede de unos valores máximos concretos.",
+    "Se utiliza en las instalaciones eléctricas para evitar el paso de corriente al usuario por un error de aislamiento de los conductores activos.",
+    "Es un cilindro y dentro de él hay un conductor calibrado que aguanta el paso de una cierta intensidad, algo inferior al consumo normal del circuito que protege.",
+    "Es un dispositivo que corta la corriente eléctrica de un circuito cuando no excede de unos valores máximos."
+  ],
+  answerIndex: 0,
+  explanation: "Según 3.3.1: el fusible protege cortando el circuito cuando la corriente excede valores máximos."
+},
+{
+  id: "t3b-09",
+  text: "La toma de tierra:",
+  options: [
+    "Se utiliza en las instalaciones eléctricas para evitar el paso de corriente al usuario por un error de aislamiento de los conductores activos.",
+    "Es un dispositivo que puede cortar la corriente eléctrica de un circuito cuando ésta excede de unos valores máximos concretos.",
+    "Es un cilindro y dentro de él hay un conductor calibrado que aguanta el paso de una cierta intensidad, algo inferior al consumo normal del circuito que protege.",
+    "Ninguna es cierta."
+  ],
+  answerIndex: 0,
+  explanation: "Según 3.3.4: la toma de tierra protege al usuario derivando la corriente por fallos de aislamiento."
+},
+{
+  id: "t3b-10",
+  text: "Las perturbaciones más frecuentes en la red eléctrica son:",
+  options: [
+    "Ruidos e impulsos en modo diferencial, Variaciones lentas y rápidas de tensión, Parpadeo, Microcortes y Variaciones de frecuencia.",
+    "Variaciones lentas y rápidas de tensión, Microcortes, Cortes largos, Distorsión y Variaciones de frecuencia.",
+    "Ruidos e impulsos en modo diferencial, Variaciones lentas y rápidas de tensión, Parpadeo, Microcortes, Cortes largos, Distorsión y Variaciones de frecuencia.",
+    "Ruidos e impulsos en modo diferencial, Variaciones lentas y rápidas de tensión, Parpadeo, Microcortes y Cortes largos."
+  ],
+  answerIndex: 2,
+  explanation: "Según 3.4.1: son frecuentes ruidos, variaciones de tensión, parpadeo, microcortes, cortes largos, distorsión y variaciones de frecuencia."
+},
+{
+  id: "t4b-01",
+  text: "¿Cuál es la clasificación de la compatibilidad electromagnética?",
+  options: [
+    "Normas básicas, Normas genéricas y Normas de producto.",
+    "Normas básicas, Normas genéricas, Normas de familia de producto, y Normas de producto.",
+    "Normas básicas, Normas genéricas, Normas de familia de cualquier otro producto, y Normas de producto.",
+    "Normas genéricas, Normas de familia de producto, y Normas de producto."
+  ],
+  answerIndex: 1,
+  explanation: "Según 4.1.2: se clasifica en normas básicas, genéricas, de familia de producto y de producto."
+},
+{
+  id: "t4b-02",
+  text: "El cableado horizontal:",
+  options: [
+    "Es el encargado de interconectar los closet de telecomunicaciones, los cuartos de equipos y la acometida.",
+    "Va desde el subrepartidor de planta (FD) hasta el punto de acceso o conexión pasando por la toma ofimática (TO).",
+    "Tanto la a) como la b) son verdaderas.",
+    "Ni la a) ni la b) son ciertas."
+  ],
+  answerIndex: 1,
+  explanation: "Según 4.2.1: el cableado horizontal va del FD hasta la toma ofimática (TO)."
+},
+{
+  id: "t4b-03",
+  text: "¿Qué es una roseta?",
+  options: [
+    "Es un instrumento al que se conectan todos los cables del cableado horizontal para que se conecte con otros dispositivos de red.",
+    "Es un dispositivo de conectividad de red que forma parte del subsistema vertical para permitir la conexión de un PC a través un cable de red a una conexión fija de pared.",
+    "Es un dispositivo de conectividad de red que forma parte del subsistema horizontal para permitir la conexión de un PC a través un cable de red a una conexión fija de pared.",
+    "Es un instrumento al que se conectan todos los cables del cableado vertical para que se conecte con otros dispositivos de red."
+  ],
+  answerIndex: 2,
+  explanation: "Según 4.2.2: la roseta forma parte del subsistema horizontal y conecta PC ↔ toma fija."
+},
+{
+  id: "t4b-04",
+  text: "¿Qué es la atenuación?",
+  options: [
+    "Es la pérdida de potencia sufrida por la misma al circular por un medio de transmisión.",
+    "Es una medición para la certificación del cableado estructurado, e indica el estado de las conexiones según el código de colores del cableado estructurado.",
+    "Es el Dominio del tiempo de reflectometría por la velocidad nominal de propagación y por la velocidad de la luz en el vacío y todo este producto dividido entre dos.",
+    "Es una medición para la certificación del cableado estructurado, pero no indica el estado de las conexiones según el código de colores del cableado estructurado."
+  ],
+  answerIndex: 0,
+  explanation: "Según 4.3.3: la atenuación es la pérdida de potencia en un medio de transmisión."
+},
+{
+  id: "t4b-05",
+  text: "¿Qué es el retardo de propagación?",
+  options: [
+    "Es la pérdida de potencia sufrida por la misma al circular por un medio de transmisión.",
+    "Es el tiempo esperado o tiempo medio entre dos sucesos de baja probabilidad.",
+    "Es el tiempo que tarda una señal para atravesar un conductor o dispositivo.",
+    "Es el tiempo esperado o tiempo medio entre dos sucesos de alta probabilidad."
+  ],
+  answerIndex: 2,
+  explanation: "Según 4.3.5: es el tiempo que tarda la señal en atravesar un conductor o dispositivo."
+},
+{
+  id: "t4b-06",
+  text: "¿Qué es el tipo de diafonía NEXT?",
+  options: [
+    "Es la que se calcula como la relación entre la amplitud de voltaje de la señal de prueba y la señal diafónica, medida en el mismo extremo del enlace.",
+    "Es la que se calcula igual que la a) pero a una distancia mayor del transmisor y por tanto creando menos ruido.",
+    "Es la que mide el efecto acumulativo de la diafonía de todos los pares de hilos del cable.",
+    "Ninguna es cierta."
+  ],
+  answerIndex: 0,
+  explanation: "Según 4.3.6: NEXT se mide en el mismo extremo comparando señal y diafonía."
+},
+{
+  id: "t4b-07",
+  text: "¿Qué es un canal?",
+  options: [
+    "Determinan este modelo de comprobación para validar el rendimiento de la porción fija del cable instalado.",
+    "Abarca el enlace permanente y los latiguillos de parcheo en ambos extremos que dejan conectar un equipo de electrónica de red como por ejemplo un switch con un equipo informático.",
+    "Tanto la a) como la b) son verdaderas.",
+    "Abarca el enlace permanente pero no los latiguillos de parcheo en ambos extremos."
+  ],
+  answerIndex: 1,
+  explanation: "Según 4.5.1: un canal incluye enlace permanente + latiguillos de parcheo."
+},
+{
+  id: "t4b-08",
+  text: "¿Qué es un tester?",
+  options: [
+    "Es el proceso con el que se compara el rendimiento de transmisión de un sistema de cableado instalado con un estándar concreto empleando un método determinado por el estándar para medir ese rendimiento.",
+    "Es un dispositivo que se utiliza para cotejar magnitudes físicas mediante un método de medición.",
+    "Es un dispositivo eléctrico portátil para medir directamente magnitudes eléctricas activas tales como corrientes y potenciales (tensiones) o pasivas como resistencias, capacidades y otras.",
+    "Es un dispositivo eléctrico portátil para medir directamente magnitudes que no sean eléctricas."
+  ],
+  answerIndex: 2,
+  explanation: "Según 4.5.2: un tester es un dispositivo eléctrico portátil para medir magnitudes eléctricas."
+},
+{
+  id: "t4b-09",
+  text: "¿Qué es la calibración?",
+  options: [
+    "Enseña la forma en que el valor nominal de un material o indicación de un instrumento está vinculado al valor común verdadero del medido.",
+    "Es el proceso con el que se compara el rendimiento de transmisión de un sistema de cableado instalado con un estándar concreto empleando un método determinado por el estándar para medir ese rendimiento.",
+    "Ni la a) ni la b) son ciertas.",
+    "Tanto la a) como la b) son ciertas."
+  ],
+  answerIndex: 0,
+  explanation: "Según 4.6.2: la calibración relaciona la indicación de un instrumento con el valor verdadero."
+},
+{
+  id: "t4b-10",
+  text: "La documentación de los resultados:",
+  options: [
+    "Es muy importante cuando aparece alguna duda sobre la calidad o precisión del trabajo de cableado.",
+    "Verifica que en una fecha concreta, los cables se instalaron en un orden determinado y que podían llevar señales con un nivel de calidad concreto.",
+    "Las a) y la b) son correctas.",
+    "Ni la a) ni la b) son ciertas."
+  ],
+  answerIndex: 2,
+  explanation: "Según 4.6.4: la documentación es importante y verifica instalación/orden/calidad, por lo que a y b son correctas."
+},
+{
+  id: "t5b-01",
+  text: "¿Cuáles son las averías más frecuentes que se dan en los circuitos eléctricos?",
+  options: [
+    "Cortocircuitos, Sobreintensidad, Contacto directo, Contacto indirecto y Sobretensiones.",
+    "Cortocircuitos, Sobreintensidad, Contacto directo, Contacto indirecto y Perturbaciones.",
+    "Cortocircuitos, Sobreintensidad, Contacto directo, Contacto indirecto y Subtensiones.",
+    "Sobreintensidad, Contacto directo, Contacto indirecto y Perturbaciones."
+  ],
+  answerIndex: 0,
+  explanation: "Según 5.1.1: cortocircuitos, sobreintensidad, contactos directos/indirectos y sobretensiones."
+},
+{
+  id: "t5b-02",
+  text: "¿Qué es una avería parcial?",
+  options: [
+    "La que dañan las funciones del elemento estimadas como mayores.",
+    "La que daña algunas de las funciones pero no a todas.",
+    "Afecta el elemento de manera aleatoria.",
+    "Ninguna es correcta."
+  ],
+  answerIndex: 1,
+  explanation: "Según 5.1.2: una avería parcial daña algunas funciones, no todas."
+},
+{
+  id: "t5b-03",
+  text: "¿Cuáles son las averías lógicas más comunes?",
+  options: [
+    "Tabla de particiones defectuosa o borrada, Sistema de ficheros corruptos, Formateo o borrado de archivos y cortocircuitos o sobreintensidad.",
+    "Perturbaciones, Sistema de ficheros corruptos, Formateo o borrado de archivos y errores de usuario, manipulación y espionaje.",
+    "Tabla de particiones defectuosa o borrada, Sistema de ficheros corruptos, Formateo o borrado de archivos y errores de usuario, manipulación y espionaje.",
+    "Todas son ciertas."
+  ],
+  answerIndex: 2,
+  explanation: "Según 5.2.1: tabla de particiones, ficheros corruptos, formateo/borrado y errores de usuario."
+},
+{
+  id: "t5b-04",
+  text: "¿Cuáles son las funciones secundarias?",
+  options: [
+    "Son las que dan funciones de apoyo a las funciones principales.",
+    "Son las funciones para las que el dispositivo fue diseñado.",
+    "Son aquellas que producen funciones más relacionadas con la calidad de forma o estética.",
+    "Son las funciones para las que el dispositivo no fue diseñado."
+  ],
+  answerIndex: 0,
+  explanation: "Según 5.3.1: son funciones de apoyo a las principales."
+},
+{
+  id: "t5b-05",
+  text: "Posibles tipos de fallos en una red eléctrica y su calidad según la forma de onda:",
+  options: [
+    "Transitorios, Interrupciones, Bajada de tensión, Aumento de tensión, Corte inminente, Fluctuaciones de tensión y Variaciones de frecuencia.",
+    "Transitorios, Interrupciones, Bajada de tensión, Aumento de tensión, Ruido, Fluctuaciones de tensión y Variaciones de frecuencia.",
+    "Transitorios, Interrupciones, Bajada de tensión, Aumento de tensión, Distorsión de la forma de onda, Fluctuaciones de tensión y Variaciones de frecuencia.",
+    "Interrupciones, Bajada de tensión, Aumento de tensión, Distorsión de la forma de onda y Variaciones de frecuencia."
+  ],
+  answerIndex: 2,
+  explanation: "Según 5.3.3: incluye transitorios, interrupciones, bajadas, subidas, distorsión, fluctuaciones y variaciones."
+},
+{
+  id: "t5b-06",
+  text: "Métodos de corrección y detección de errores:",
+  options: [
+    "Dígito verificador, FEC (Forward Error Correction), Código Binario de Golay, Código Hamming, Bit de paridad y Reed-Solomon.",
+    "Dígito verificador, FEC (Forward Error Correction), Código Hamming, Bit de paridad y Reed-Solomon.",
+    "FEC (Forward Error Correction), Código Binario de Golay, Código Hamming, Bit de paridad y Reed-Solomon.",
+    "Ninguna es cierta."
+  ],
+  answerIndex: 0,
+  explanation: "Según 5.3.4: todos esos métodos son válidos."
+},
+{
+  id: "t5b-07",
+  text: "Pasos a seguir en la planificación de las intervenciones:",
+  options: [
+    "Controlar las diferentes etapas de la planificación de la intervención, Avisar a los técnicos para hacer las soluciones necesarias y Garantizar una buena integración de las intervenciones planificadas para llevar a cabo la solución.",
+    "Controlar las diferentes etapas de la planificación de la intervención, Garantizar la realización de todas las actividades necesarias, desde que ideamos la solución hasta la evaluación de la intervención, Avisar a los técnicos para hacer las soluciones necesarias y Garantizar una buena integración de las intervenciones planificadas para llevar a cabo la solución.",
+    "Garantizar la realización de todas las actividades necesarias, desde que ideamos la solución hasta la evaluación de la intervención, Avisar a los técnicos para hacer las soluciones necesarias y Garantizar una buena integración de las intervenciones planificadas para llevar a cabo la solución.",
+    "Controlar las diferentes etapas de la planificación de la intervención, Garantizar la realización de todas las actividades necesarias, desde que ideamos la solución hasta la evaluación de la intervención y Avisar a los técnicos para hacer las soluciones necesarias."
+  ],
+  answerIndex: 1,
+  explanation: "Según 5.3.6: se deben cumplir todos esos pasos (controlar, garantizar, avisar, integrar)."
+},
+{
+  id: "t5b-08",
+  text: "¿Qué es un polímetro?",
+  options: [
+    "Son dispositivos portátiles y simples que sirven de ayuda para verificar de manera externa el estado de los cableados y ejecutar reparaciones.",
+    "Es una de las formas de comprobar el funcionamiento de los cables conectándolo al dispositivo o al otro ordenador y ver si hay flujo de paquetes.",
+    "Es un dispositivo eléctrico portátil para medir magnitudes eléctricas activas tales como corrientes y potenciales o pasivas como resistencias, capacidades y otras.",
+    "Es un dispositivo eléctrico portátil para medir solamente magnitudes eléctricas activas tales como corrientes y potenciales."
+  ],
+  answerIndex: 2,
+  explanation: "Según 5.5.1: el polímetro mide magnitudes eléctricas activas y pasivas."
+},
+{
+  id: "t5b-09",
+  text: "¿Qué es un generador y localizador de tonos?",
+  options: [
+    "Son dispositivos portátiles y simples que sirven de ayuda para verificar de manera externa el estado de los cableados y a ejecutar eficazmente las reparaciones de líneas.",
+    "Es una de las formas de comprobar el funcionamiento de los cables conectándolo al dispositivo o al otro ordenador y ver si hay flujo de paquetes.",
+    "Es un dispositivo eléctrico portátil para medir magnitudes eléctricas activas tales como corrientes y potenciales o pasivas como resistencias, capacidades y otras.",
+    "Todas son ciertas."
+  ],
+  answerIndex: 0,
+  explanation: "Según 5.5.3: sirve para localizar cables y facilitar reparaciones en cajas/derivaciones."
+},
+{
+  id: "t5b-10",
+  text: "¿Qué es un analizador de protocolos?",
+  options: [
+    "Son programas que muestran información acerca de la conexión que se hace entre tu ordenador y la red, ya sea externa o interna.",
+    "Es un programa que se utiliza para desarrollar y limpiar protocolos y aplicaciones de red.",
+    "Tanto la a) como la b) son ciertas.",
+    "Ni la a) ni la b) son ciertas."
+  ],
+  answerIndex: 0,
+  explanation: "Según 5.6.2: muestra información sobre las conexiones entre ordenador y red."
+},
+{
+  id: "t6-01",
+  text: "¿Qué es la calidad programada?",
+  options: [
+    "La que puede conseguir la persona que hace el trabajo.",
+    "La calidad que se pretende lograr.",
+    "La calidad que el cliente requiere con mayor o menor grado de precisión.",
+    "La calidad que el cliente no necesita."
+  ],
+  answerIndex: 1,
+  explanation: "Según 6.1: la calidad programada es la que se pretende lograr."
+},
+{
+  id: "t6-02",
+  text: "¿Qué nivel del proyecto consolida la calidad de éstos según los estándares IEE?",
+  options: [
+    "Facilita el esquema de la documentación del plan de consolidación de la calidad.",
+    "Definición de métricas para productos y procesos, y procedimientos para la reunión de valores de métricas.",
+    "Tanto la a) como la b) son ciertas.",
+    "Ni la a) ni la b) son verdaderas."
+  ],
+  answerIndex: 2,
+  explanation: "Según 6.2: tanto la documentación como las métricas y procedimientos consolidan la calidad."
+},
+{
+  id: "t6-03",
+  text: "¿Cuáles son los costes de implementación de la calidad?",
+  options: [
+    "Se equipara el ingreso incremental de la mejora del producto, con el coste incremental de lograrla y se determina si es conveniente continuar invirtiendo en mejorar la calidad.",
+    "Son los costes ganados durante y después del proyecto debidos a los fallos y errores.",
+    "Son los costes ganados durante el proyecto para eludir errores y defectos.",
+    "Son los costes ganados después del proyecto debidos a los fallos y errores."
+  ],
+  answerIndex: 0,
+  explanation: "Según 6.2.2: se comparan ingresos incrementales y costes para decidir inversión en calidad."
+},
+{
+  id: "t6-04",
+  text: "¿Cuáles van a ser las etapas de planificación de la calidad?",
+  options: [
+    "Análisis interno y externo, Misión/visión - política de la calidad, Objetivos y Planes.",
+    "Análisis interno, Misión/visión, Objetivos y Planes.",
+    "Análisis externo, Misión/visión, Objetivos y Planes.",
+    "Análisis interno y externo y Misión/visión - política de la calidad."
+  ],
+  answerIndex: 0,
+  explanation: "Según 6.3.1: las etapas incluyen análisis interno y externo, misión/visión-política, objetivos y planes."
+},
+{
+  id: "t6-05",
+  text: "¿Cuáles son las etapas para el Control de la Calidad?",
+  options: [
+    "Comparación con el objetivo de la calidad/estándar y Actuación sobre las diferencias.",
+    "Estudio del comportamiento real y Actuación sobre las diferencias.",
+    "Estudio del comportamiento real, Comparación con el objetivo de la calidad/estándar y Actuación sobre las diferencias.",
+    "Estudio del comportamiento real y Comparación con el objetivo de la calidad/estándar."
+  ],
+  answerIndex: 2,
+  explanation: "Según 6.3.3: las etapas son estudio real, comparación con estándar y actuación sobre diferencias."
+},
+{
+  id: "t6-06",
+  text: "¿Qué es la inspección del trabajo en proceso?",
+  options: [
+    "Es mientras que los productos están pasando por el proceso de producción.",
+    "Se da cuando las materias primas se reciben antes de entrar en producción.",
+    "Cuando los productos están terminados, es la inspección o prueba que se da antes de llevar el producto al cliente.",
+    "Ninguna es cierta."
+  ],
+  answerIndex: 0,
+  explanation: "Según 6.4.1: la inspección en proceso se realiza durante la producción."
+},
+{
+  id: "t6-07",
+  text: "¿Qué es el plan de calidad?",
+  options: [
+    "Es un método planificado y sistemático de medios y acciones, encaminado a garantizar bastante seguridad en que los productos o servicios se adapten a los requerimientos.",
+    "Documento que detalla qué procedimientos y recursos vinculados tienen que aplicarse, quién tiene que adaptarlos y cuándo tienen que aplicarse a un proyecto, producto, proceso o contrato concreto.",
+    "Documento que detalla qué procedimientos y recursos vinculados tienen que aplicarse, pero no quién tiene que adaptarlos ni cuándo tienen que aplicarse.",
+    "Ninguna es cierta."
+  ],
+  answerIndex: 1,
+  explanation: "Según 6.9: el plan de calidad especifica procedimientos, recursos, responsables y tiempos."
+},
+{
+  id: "t6-08",
+  text: "Los criterios para garantizar la calidad son:",
+  options: [
+    "Especificar qué tiene que ser sometido a verificación y control, Definir la manera más adecuada de efectuar el control, Desarrollar la programación de las actividades de calidad, y Detallar las herramientas y técnicas de calidad que tienen que ser usadas.",
+    "Definir la manera más adecuada de efectuar el control, Desarrollar la programación de las actividades de calidad, Especificar los interesados y participantes de las actividades de calidad y Detallar las herramientas y técnicas de calidad que tienen que ser usadas.",
+    "Especificar qué tiene que ser sometido a verificación y control, Definir la manera más adecuada de efectuar el control, Desarrollar la programación de las actividades de calidad, Especificar los interesados y participantes de las actividades de calidad y Detallar las herramientas y técnicas de calidad que tienen que ser usadas.",
+    "Especificar qué tiene que ser sometido a verificación y control, Desarrollar la programación de las actividades de calidad y Detallar las herramientas y técnicas de calidad que tienen que ser usadas."
+  ],
+  answerIndex: 2,
+  explanation: "Según 6.10: se incluyen verificación, control, programación, interesados y herramientas/técnicas."
+},
+{
+  id: "t6-09",
+  text: "El contenido mínimo del plan de calidad va a ser:",
+  options: [
+    "Alcance, Elementos de entrada, Objetivos de calidad, Responsabilidad de la dirección, Control de documentos de datos, Control de los registros, Recursos, Requisitos, Diseño y Desarrollo, Compras o contratación, Producción y prestación del servicio, Identificación y trazabilidad y Seguimiento y medición.",
+    "Alcance, Elementos de entrada, Responsabilidad de la dirección, Control de documentos de datos, Control de los registros, Recursos, Requisitos, Diseño y Desarrollo, Compras o contratación, Producción y prestación del servicio, Identificación y trazabilidad y Seguimiento y medición.",
+    "Objetivos de calidad, Responsabilidad de la dirección, Control de documentos de datos, Control de los registros, Recursos, Requisitos, Diseño y Desarrollo, Compras o contratación, Producción y prestación del servicio, Identificación y trazabilidad y Seguimiento y medición.",
+    "Elementos de entrada, Objetivos de calidad, Responsabilidad de la dirección, Control de documentos de datos, Control de los registros, Recursos, Requisitos, Compras o contratación, Producción y prestación del servicio, Identificación y trazabilidad y Seguimiento y medición."
+  ],
+  answerIndex: 0,
+  explanation: "Según 6.12: el plan mínimo incluye alcance, entradas, objetivos, responsabilidad, control de docs, registros, recursos, requisitos, diseño, compras, producción, identificación/trazabilidad y seguimiento/medición."
+},
+{
+  id: "t6-10",
+  text: "¿Cuál es la secuencia de pasos que comprende el control?",
+  options: [
+    "Seleccionar una unidad de medida, Definir una meta, desarrollar un sensor, medir el desempeño, explicar la diferencia entre el desempeño real y la meta y Hacer las acciones necesarias para evitar la diferencia.",
+    "Seleccionar el sujeto de control, Seleccionar una unidad de medida, Definir una meta, desarrollar un sensor, medir el desempeño, explicar la diferencia entre el desempeño real y la meta y Hacer las acciones necesarias para evitar la diferencia.",
+    "Ni la a) ni la b) son correctas.",
+    "Tanto la a) como la b) son ciertas."
+  ],
+  answerIndex: 1,
+  explanation: "Según 6.13: el control incluye sujeto de control, unidad de medida, meta, sensor, medir, explicar y actuar."
+},
+{
+  id: "t7-01",
+  text: "¿Qué se define en un plan de seguridad?",
+  options: [
+    "La secuencia de operaciones a realizar, previenen y minimizan las pérdidas causadas por los riesgos puros del trabajo, pero no el tiempo que se necesita para hacer cada una de sus partes.",
+    "La secuencia de operaciones a realizar, previenen y minimizan las pérdidas causadas por los riesgos puros del trabajo, y también el tiempo que se necesita para hacer cada una de sus partes.",
+    "La secuencia de operaciones a realizar, no previenen ni minimizan las pérdidas causadas por los riesgos puros del trabajo, pero sí el tiempo que se necesita para hacer cada una de sus partes.",
+    "Ninguna es cierta."
+  ],
+  answerIndex: 1,
+  explanation: "Según 7.1: el plan de seguridad define operaciones, previene/minimiza pérdidas y contempla tiempos."
+},
+{
+  id: "t7-02",
+  text: "¿Dónde están las actividades de prevención para garantizar la seguridad?",
+  options: [
+    "Tendrán que incluirse en el conjunto de las actividades de la empresa y en todos los niveles jerárquicos de la misma.",
+    "Tendrán que incluirse en el conjunto de las actividades de la empresa pero no todos los niveles jerárquicos de la misma.",
+    "Tanto la a) como la b) son ciertas.",
+    "Ni la a) ni la b) son ciertas."
+  ],
+  answerIndex: 0,
+  explanation: "Según 7.3: deben incluirse en todas las actividades de la empresa y en todos los niveles jerárquicos."
+},
+{
+  id: "t7-03",
+  text: "En un esquema de un programa necesitamos:",
+  options: [
+    "Es el método que sitúa el esquema de una organización, con el objetivo de ayudar a cumplimentar los objetivos de la misma.",
+    "Es el método que sitúa el esquema y desarrollo de planes y programas para la definición y fortalecimientos de conocimientos, habilidades o actitudes en los participantes de una organización, sin ningún fin.",
+    "Es el método que sitúa el esquema y desarrollo de planes y programas para la definición y fortalecimientos de conocimientos, habilidades o actitudes en los participantes de una organización, con el objetivo de ayudar a cumplimentar los objetivos de la misma.",
+    "Es el método para no desarrollar los planes y programas para la definición y fortalecimientos de conocimientos, habilidades o actitudes en los participantes de una organización."
+  ],
+  answerIndex: 2,
+  explanation: "Según 7.7: se definen planes y programas para fortalecer conocimientos, habilidades y actitudes con objetivos."
+},
+{
+  id: "t7-04",
+  text: "En un esquema de un programa necesitamos:",
+  options: [
+    "Necesitamos conceder las actividades que tendrán que realizar cada una de las personas que forman la organización, de forma que puedan trabajar y conseguir un regocijo personal al realizar actividades elegidas que tiendan a conseguir que funcione el plan de seguridad.",
+    "Necesitamos saber el análisis interno, la misión/visión, objetivos y planes.",
+    "No necesitamos conceder las actividades que tendrán que realizar cada una de las personas que forman la organización.",
+    "Ninguna es cierta."
+  ],
+  answerIndex: 0,
+  explanation: "Según 7.7.1: se deben asignar actividades a cada persona, buscando compromiso y satisfacción personal."
+},
+{
+  id: "t7-05",
+  text: "El análisis de tareas:",
+  options: [
+    "Realizamos una lista de todas las actividades grandes y pequeñas que un experto elaborará mientras su trabajo y podremos especificar todas las actividades que forman cada tarea, especificaremos las habilidades, conocimientos, actitudes, equipo, material, consecuencias y riesgos que tengan cada actividad.",
+    "Realizamos una lista de tan sólo las actividades grandes que un experto elaborará mientras su trabajo y podremos especificar todas las actividades que forman cada tarea, especificaremos las habilidades, conocimientos, actitudes, equipo, material, consecuencias y riesgos que tengan cada actividad.",
+    "Se realiza cuando los productos están terminados, es la inspección o prueba que se da antes de llevar el producto al cliente.",
+    "Realizamos una lista de tan sólo las actividades pequeñas que un experto elaborará mientras su trabajo y podremos especificar todas las actividades que forman cada tarea, especificaremos las habilidades, conocimientos, actitudes, equipo, material, consecuencias y riesgos que tengan cada actividad."
+  ],
+  answerIndex: 0,
+  explanation: "Según 7.7.2: el análisis de tareas incluye todas las actividades, con sus requisitos, riesgos y recursos."
+},
+{
+  id: "t7-06",
+  text: "¿Qué es el inventario de habilidades?",
+  options: [
+    "Es un documento que tiene información acerca de los conocimientos y habilidades de los empleados de forma que tenga información en el momento acerca de sus empleados que pueden ser favorecidos a puestos laterales o de mayor nivel.",
+    "El inventario normalmente tiene información acerca del puesto al que se dedica en ese momento el trabajador, sus habilidades, conocimientos, capacitación y la educación formal que ha obtenido.",
+    "Las dos son ciertas.",
+    "Ninguna es cierta."
+  ],
+  answerIndex: 2,
+  explanation: "Según 7.7.3: un inventario de habilidades incluye ambos tipos de información."
+},
+{
+  id: "t7-07",
+  text: "¿Qué es la evaluación del desempeño?",
+  options: [
+    "Es un método planificado y sistemático de medios y acciones, encaminado a garantizar bastante seguridad en que los productos o servicios se adapten a los requerimientos.",
+    "Estos informes nos muestran las necesidades de desarrollo del personal y si se realizan periódicamente, especifican si las necesidades se han satisfecho.",
+    "Estos informes nos muestran las necesidades de desarrollo del personal pero no si se realizan periódicamente.",
+    "Ninguna es cierta."
+  ],
+  answerIndex: 1,
+  explanation: "Según 7.7.4: la evaluación muestra necesidades de desarrollo y si se satisfacen periódicamente."
+},
+{
+  id: "t7-08",
+  text: "En un modelo de capacitación:",
+  options: [
+    "Es muy importante establecer los objetivos de la acción formativa ya que a partir de ellos no comenzará la planificación.",
+    "No es importante establecer los objetivos de la acción formativa ya que a partir de ellos comenzará la planificación.",
+    "Es muy importante establecer los objetivos de la acción formativa ya que a partir de ellos comenzará la planificación.",
+    "Ninguna es cierta."
+  ],
+  answerIndex: 2,
+  explanation: "Según 7.8: es fundamental establecer los objetivos de la acción formativa para planificar."
+},
+{
+  id: "t7-09",
+  text: "El contenido mínimo del plan de calidad va a ser:",
+  options: [
+    "El fin de esta metodología es limitar las etapas del proceso de la enseñanza fundamentada en competencias de programas en el contexto del diseño curricular, interrelacionando evaluación, programación y planeación en retroalimentación continua.",
+    "El fin de esta metodología es no limitar las etapas del proceso de la enseñanza fundamentada en competencias de programas en el contexto del diseño curricular, interrelacionando evaluación, programación y planeación en retroalimentación continua.",
+    "Tanto la a) como la b) son ciertas.",
+    "Ninguna de las anteriores es cierta."
+  ],
+  answerIndex: 2,
+  explanation: "Según 7.10: son válidas tanto la descripción de a) como la de b)."
+},
+{
+  id: "t7-10",
+  text: "¿Qué es el método deductivo?",
+  options: [
+    "Este método consiste en realizar una conferencia empezando por lo concreto hasta llegar a lo general, el conocimiento de hechos unitarios hasta el conocimiento de la regla general, lo que quiere decir, hacia la generalización.",
+    "Es una manera de exposición en la que el conferenciante comienza por el aspecto general para llegar después a lo particular, también, de los planteamientos y leyes generales hasta los planteamientos y leyes específicas.",
+    "Con este método se ayuda al público a hacer el siguiente razonamiento: si dos cosas son parecidas, en uno o más sentidos, posiblemente serán parecidas también en otros sentidos.",
+    "Con este método se ayuda al público a hacer el siguiente razonamiento: si dos cosas son diferentes, en uno o más sentidos, posiblemente serán diferentes también en otros sentidos."
+  ],
+  answerIndex: 1,
+  explanation: "Según 7.10.3: el método deductivo va de lo general a lo particular."
+},
+{
+  id: "tf-01",
+  text: "El control de todas las actividades de desarrollo de un proyecto es:",
+  options: [
+    "El objetivo del Análisis de Incidencias.",
+    "El objetivo del seguimiento de control.",
+    "El objetivo de los cambios de requisitos.",
+    "Ninguna es cierta."
+  ],
+  answerIndex: 1,
+  explanation: "Según 1.1: corresponde al objetivo del seguimiento de control."
+},
+{
+  id: "tf-02",
+  text: "La suma de los costes más los márgenes de beneficio que se quieren lograr se llama:",
+  options: [
+    "Margen neto.",
+    "Margen neto negativo.",
+    "Precio de venta.",
+    "Todas son ciertas."
+  ],
+  answerIndex: 2,
+  explanation: "Según 1.4: el precio de venta es costes + margen de beneficio."
+},
+{
+  id: "tf-03",
+  text: "¿Cuáles son los documentos que tienen que contrastarse las especificaciones exigidas y previstas con las realizaciones concretas?",
+  options: [
+    "Sólo los documentos de seguimiento.",
+    "Sólo los documentos de control.",
+    "Documentos de seguimiento y control.",
+    "Ninguna es cierta."
+  ],
+  answerIndex: 2,
+  explanation: "Según 1.5: deben contrastarse los documentos de seguimiento y control."
+},
+{
+  id: "tf-04",
+  text: "¿Cómo se llaman los procedimientos operativos estandarizados?",
+  options: [
+    "POE.",
+    "POES.",
+    "POA.",
+    "Ni la a) ni la b) son correctas."
+  ],
+  answerIndex: 0,
+  explanation: "Según 2.1: se llaman POE."
+},
+{
+  id: "tf-05",
+  text: "¿Cómo se llama la representación gráfica con la que se interpretan las distintas operaciones que forman un procedimiento o parte de él?",
+  options: [
+    "Diagrama de verdad.",
+    "Gráfica de flujo.",
+    "Diagrama de flujo.",
+    "POE."
+  ],
+  answerIndex: 2,
+  explanation: "Según 2.2.3: corresponde al diagrama de flujo."
+},
+{
+  id: "tf-06",
+  text: "¿Qué fase es la que se han corregido todas las observaciones por parte del encargado de las modificaciones y este da el visto bueno?",
+  options: [
+    "La fase de Revisión y Verificación.",
+    "Desarrollo del documento.",
+    "Aprobación.",
+    "Identificación."
+  ],
+  answerIndex: 0,
+  explanation: "Según 2.2.5: corresponde a la fase de Revisión y Verificación."
+},
+{
+  id: "tf-07",
+  text: "¿Cuál es la fase en la que en la gestión por procesos resulta esencial definir indicadores para medir, examinar y revisar los propios procesos?",
+  options: [
+    "La fase de Revisión y Verificación.",
+    "Desarrollo del documento.",
+    "Aprobación.",
+    "Identificación."
+  ],
+  answerIndex: 3,
+  explanation: "Según 2.2.7: corresponde a la fase de Identificación."
+},
+{
+  id: "tf-08",
+  text: "¿Cómo se llama el suministro dedicado a mantener un servicio restringido de los elementos de funcionamiento indispensables de la instalación receptora, con una potencia mínima del 25% de la potencia total contratada?",
+  options: [
+    "Suministro normal (SN).",
+    "Suministro complementario (SC).",
+    "Ninguna de las respuestas anteriores es cierta.",
+    "Todas las respuestas anteriores son ciertas."
+  ],
+  answerIndex: 1,
+  explanation: "Según 3.1: corresponde al suministro complementario (SC)."
+},
+{
+  id: "tf-09",
+  text: "¿Cómo se llama el flujo de carga eléctrica por unidad de tiempo que pasa por un material?",
+  options: [
+    "Tensión.",
+    "Intensidad.",
+    "Potencia.",
+    "Fusible."
+  ],
+  answerIndex: 1,
+  explanation: "Según 3.2.1: corresponde a la intensidad."
+},
+{
+  id: "tf-10",
+  text: "¿Cómo se llama el cilindro en el que dentro de él hay un conductor calibrado que aguanta el paso de una cierta intensidad, algo inferior al consumo normal del circuito que protege?",
+  options: [
+    "Voltímetro.",
+    "Amperímetro.",
+    "Multímetro.",
+    "Fusible."
+  ],
+  answerIndex: 3,
+  explanation: "Según 3.3.1: corresponde al fusible."
+},
+{
+  id: "tf-11",
+  text: "¿Qué se utiliza en las instalaciones eléctricas para evitar el paso de corriente al usuario por un error de aislamiento de los conductores activos?",
+  options: [
+    "Toma de tierra.",
+    "Puesta a tierra.",
+    "Ambas respuestas son correctas.",
+    "Ninguna es correcta."
+  ],
+  answerIndex: 2,
+  explanation: "Según 3.3.4: tanto toma de tierra como puesta a tierra son válidas."
+},
+{
+  id: "tf-12",
+  text: "¿Cuál es el tipo de diafonía que se calcula como la relación entre la amplitud de voltaje de la señal de prueba y la señal diafónica, medida en el mismo extremo del enlace?",
+  options: [
+    "NEXT.",
+    "FEXT.",
+    "PSNEXT.",
+    "PS-FEXT."
+  ],
+  answerIndex: 0,
+  explanation: "Según 4.3.6: corresponde a NEXT."
+},
+{
+  id: "tf-13",
+  text: "¿Cómo se llama el dispositivo que abarca el enlace permanente y los latiguillos de parcheo en ambos extremos que dejan conectar un equipo de electrónica de red como por ejemplo un switch con un equipo informático?",
+  options: [
+    "Canal.",
+    "Tester.",
+    "Galvanómetro.",
+    "Amperímetro."
+  ],
+  answerIndex: 0,
+  explanation: "Según 4.5.1: corresponde al canal."
+},
+{
+  id: "tf-14",
+  text: "¿Cómo se llama el dispositivo eléctrico portátil para medir directamente magnitudes eléctricas activas tales como corrientes y potenciales (tensiones) o pasivas como resistencias, capacidades y otras?",
+  options: [
+    "Canal.",
+    "Tester.",
+    "Galvanómetro.",
+    "Amperímetro."
+  ],
+  answerIndex: 1,
+  explanation: "Según 4.5.2: corresponde al tester."
+},
+{
+  id: "tf-15",
+  text: "¿Qué enseña la forma en que el valor nominal de un material o indicación de un instrumento está vinculado al valor común verdadero del medido?",
+  options: [
+    "Calibración.",
+    "Tester.",
+    "Galvanómetro.",
+    "Todas son ciertas."
+  ],
+  answerIndex: 0,
+  explanation: "Según 4.6.2: corresponde a la calibración."
+},
+{
+  id: "tf-16",
+  text: "¿Cómo se llaman las funciones que dan apoyo a las funciones principales?",
+  options: [
+    "Funciones terciarias.",
+    "Funciones Intermedias.",
+    "Funciones secundarias.",
+    "Funciones primarias."
+  ],
+  answerIndex: 2,
+  explanation: "Según 5.3.1: son las funciones secundarias."
+},
+{
+  id: "tf-17",
+  text: "¿Cuál es el dispositivo eléctrico portátil para medir magnitudes eléctricas activas tales como las corrientes y potenciales o pasivas como resistencias, capacidades y otras?",
+  options: [
+    "Amperímetro.",
+    "Tester.",
+    "Galvanómetro.",
+    "Polímetro."
+  ],
+  answerIndex: 3,
+  explanation: "Según 5.5.1: corresponde al polímetro."
+},
+{
+  id: "tf-18",
+  text: "¿Cuál es la inspección que se da mientras que los productos están pasando por el proceso de producción?",
+  options: [
+    "Inspección del trabajo en proceso.",
+    "Inspección de recepción.",
+    "Inspección de los productos terminados.",
+    "Inspección de calidad."
+  ],
+  answerIndex: 0,
+  explanation: "Según 6.4.1: corresponde a la inspección del trabajo en proceso."
+},
+{
+  id: "tf-19",
+  text: "¿Cuál es el documento que detalla qué procedimientos y recursos vinculados tienen que aplicarse, quién tiene que adaptarlos y cuándo tienen que aplicarse a un proyecto, producto, proceso o contrato concreto?",
+  options: [
+    "Documento del trabajo en proceso.",
+    "Plan de calidad.",
+    "Plan de control.",
+    "Inspección de calidad."
+  ],
+  answerIndex: 1,
+  explanation: "Según 6.9: corresponde al plan de calidad."
+},
+{
+  id: "tf-20",
+  text: "¿Qué es la recepción definitiva?",
+  options: [
+    "Las dos siguientes son verdaderas.",
+    "Es la que se da cuando la obra está finalizada, definiéndose un período de garantía usual que tiene como fin garantizar el adecuado cumplimiento de las responsabilidades del constructor.",
+    "Es la que se da una vez que la obra está totalmente acabada, empezando a partir de ese momento los plazos de las responsabilidades previstas en el artículo 17 de la LOE y demás que se deriven del contrato.",
+    "Ni la b) ni la c) son verdaderas."
+  ],
+  answerIndex: 0,
+  explanation: "Según 7.15.2: son correctas tanto la b) como la c)."
+}
+    ];
+   
+
+    /************************
+     *  ⚙️ LÓGICA DEL TEST
+     ************************/
+    const state = {
+      shuffled: [],
+      page: 0,
+      selections: new Map(),  // id -> index seleccionado
+      checked: new Set(),     // id que ya fueron comprobadas
+      score: new Map(),       // id -> true/false
+    };
+
+    const $list = document.getElementById('questionList');
+    const $results = document.getElementById('results');
+    const $prev = document.getElementById('prevBtn');
+    const $next = document.getElementById('nextBtn');
+    const $finish = document.getElementById('finishBtn');
+    const $restart = document.getElementById('restartBtn');
+    const $pageIndicator = document.getElementById('pageIndicator');
+    const $chip = document.getElementById('progressChip');
+
+    function shuffle(arr){
+      const a = [...arr];
+      for(let i=a.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i],a[j]]=[a[j],a[i]];
+      }
+      return a;
+    }
+
+    function chunk(arr, size){
+      const out=[];
+      for(let i=0;i<arr.length;i+=size) out.push(arr.slice(i,i+size));
+      return out;
+    }
+
+    function init(){
+      // Validación mínima
+      if(!Array.isArray(QUESTION_BANK) || QUESTION_BANK.length===0){
+        renderEmpty();
+        return;
+      }
+      // barajar preguntas y también las opciones de cada una (sin perder el índice correcto)
+      state.shuffled = shuffle(QUESTION_BANK.map(q => {
+        const opts = q.options.map((o,i)=>({text:o, originalIndex:i}));
+        const shuffledOpts = shuffle(opts);
+        const newAnswerIndex = shuffledOpts.findIndex(o => o.originalIndex === q.answerIndex);
+        return {
+          ...q,
+          options: shuffledOpts.map(o=>o.text),
+          answerIndex: newAnswerIndex,
+        };
+      }));
+      state.page = 0;
+      state.selections.clear();
+      state.checked.clear();
+      state.score.clear();
+      $results.classList.add('hidden');
+      $restart.classList.add('hidden');
+      $finish.classList.remove('hidden');
+      window.scrollTo({top:0, behavior:'smooth'});
+      render();
+    }
+
+    function render(){
+      const pages = chunk(state.shuffled, PAGE_SIZE);
+      const totalPages = Math.max(1, pages.length);
+      const page = Math.min(Math.max(0, state.page), totalPages-1);
+      state.page = page;
+      const items = pages[page] ?? [];
+      $list.innerHTML = '';
+      items.forEach((q, idx) => $list.appendChild(renderQuestionCard(q, page*PAGE_SIZE + idx)));
+
+      // UI navegación
+      $prev.disabled = page === 0;
+      $next.disabled = page >= totalPages-1;
+      $pageIndicator.textContent = `Página ${page+1} de ${totalPages}`;
+      $chip.textContent = `${state.checked.size}/${state.shuffled.length}`;
+    }
+
+    function renderEmpty(){
+      $list.innerHTML = `
+        <div class="results fade-in">
+          <h2>🚧 Aún no hay preguntas</h2>
+          <p>Pega tus ítems en <code>QUESTION_BANK</code> siguiendo el esquema y recarga. </p>
+          <p class="subtitle">Consejo: empieza con 15–30 preguntas para probar 😉</p>
+        </div>
+      `;
+      $finish.classList.add('hidden');
+      $restart.classList.add('hidden');
+      $prev.disabled = true; $next.disabled = true;
+      $pageIndicator.textContent = `Página 1`;
+      $chip.textContent = `0/0`;
+    }
+
+    function renderQuestionCard(q, globalIndex){
+  const card = document.createElement('article');
+  card.className = 'question-card fade-in';
+  card.dataset.qid = q.id ?? `q-${globalIndex}`;
+  const userSel = state.selections.get(card.dataset.qid);
+  const isChecked = state.checked.has(card.dataset.qid);
+
+  card.innerHTML = `
+    <div class="q-head">
+      <div class="q-title">🧠 ${q.text}</div>
+      <div class="q-index">#${globalIndex+1}</div>
+    </div>
+    <div class="options" role="radiogroup" aria-label="${escapeHtml(q.text)}">
+      ${q.options.map((opt, i) => {
+        const letter = String.fromCharCode(97 + i); // 97 = "a"
+        return `
+          <label class="opt ${isChecked ? (i===q.answerIndex ? 'correct' : (userSel===i ? 'incorrect' : '')) : ''}">
+            <input type="radio" name="r-${card.dataset.qid}" value="${i}" ${userSel===i?'checked':''} ${isChecked?'disabled':''} />
+            <span><strong>${letter})</strong> ${escapeHtml(opt)}</span>
+          </label>
+        `;
+      }).join('')}
+    </div>
+    <div class="q-actions">
+      <button class="pill" data-action="check">✅ Comprobar</button>
+      <div class="hint ${isChecked ? (userSel===q.answerIndex ? 'ok' : 'bad') : 'hidden'}" data-hint>
+        ${isChecked ? feedbackText(q, userSel) : 'Selecciona una opción y pulsa “Comprobar”.'}
+      </div>
+    </div>
+  `;
+
+  // listeners
+  card.querySelectorAll('input[type="radio"]').forEach(input=>{
+    input.addEventListener('change', e=>{
+      state.selections.set(card.dataset.qid, Number(e.target.value));
+    });
+  });
+
+  card.querySelector('[data-action="check"]').addEventListener('click', ()=>{
+    const sel = state.selections.get(card.dataset.qid);
+    if(typeof sel !== 'number'){
+      flash(card.querySelector('[data-hint]'), 'bad', 'Primero elige una opción 🙈');
+      return;
+    }
+    state.checked.add(card.dataset.qid);
+    const ok = sel === q.answerIndex;
+    state.score.set(card.dataset.qid, ok);
+    card.querySelectorAll('input').forEach(i=>i.disabled = true);
+    const labels = [...card.querySelectorAll('.opt')];
+    labels.forEach((el, i)=>{
+      el.classList.remove('correct','incorrect');
+      if(i===q.answerIndex) el.classList.add('correct');
+      if(i===sel && !ok) el.classList.add('incorrect');
+    });
+    const $h = card.querySelector('[data-hint]');
+    $h.classList.remove('hidden','ok','bad');
+    $h.classList.add(ok ? 'ok' : 'bad');
+    $h.innerHTML = feedbackText(q, sel);
+    $chip.textContent = `${state.checked.size}/${state.shuffled.length}`;
+  });
+
+  return card;
+}
+
+    function feedbackText(q, sel){
+      const ok = sel === q.answerIndex;
+      const base = ok ? '¡Correcto! 🎉' : `Incorrecto 😵‍💫. Correcta: <strong>${escapeHtml(q.options[q.answerIndex])}</strong>`;
+      const extra = q.explanation ? `<br>${escapeHtml(q.explanation)}` : '';
+      return base + extra;
+    }
+
+    function flash(el, mode, text){
+      el.classList.remove('hidden','ok','bad');
+      if(mode==='ok') el.classList.add('ok'); else el.classList.add('bad');
+      el.textContent = text;
+      el.classList.add('fade-in');
+      setTimeout(()=>el.classList.remove('fade-in'), 350);
+    }
+
+    function finish(){
+      const total = state.shuffled.length;
+      const correct = [...state.score.values()].filter(Boolean).length;
+      const checkedCount = state.checked.size;
+      const incorrect = checkedCount - correct;
+      const unanswered = total - checkedCount;
+      const ratio = correct / total;
+      const passed = ratio >= PASS_THRESHOLD;
+
+      $results.innerHTML = `
+        <h2>${passed ? '✅ ¡Aprobado!' : '❌ No aprobado'}</h2>
+        <p class="subtitle">Has respondido <strong>${checkedCount}</strong> de <strong>${total}</strong> preguntas.</p>
+        <div class="kpi">
+          <div class="card">✔️ Correctas: ${correct}</div>
+          <div class="card">❌ Incorrectas: ${incorrect}</div>
+          <div class="card">⏳ Sin responder: ${unanswered}</div>
+        </div>
+        <p style="margin-top:12px;">Umbral de aprobado: ${(PASS_THRESHOLD*100)|0}% • Tu puntaje: ${(ratio*100).toFixed(0)}%</p>
+      `;
+      $results.classList.remove('hidden');
+      $restart.classList.remove('hidden');
+      $finish.classList.add('hidden');
+      window.scrollTo({top: $results.offsetTop - 24, behavior:'smooth'});
+    }
+
+    // navegación
+    $prev.addEventListener('click', ()=>{ state.page--; render(); window.scrollTo({top:0, behavior:'smooth'}) });
+    $next.addEventListener('click', ()=>{ state.page++; render(); window.scrollTo({top:0, behavior:'smooth'}) });
+    $finish.addEventListener('click', finish);
+    $restart.addEventListener('click', ()=>{ init(); });
+
+    // util
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"']/g, s => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+      }[s]));
+    }
+
+    // iniciar
+    init();
+  </script>
+</body>
+</html>
